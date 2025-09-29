@@ -43,9 +43,9 @@ return [
              * the following line and set the port accordingly
              */
             //'port' => 'non_standard_port_number',
-            'username' => 'my_app',
-            'password' => 'secret',
-            'database' => 'my_app',
+            'username' => 'postgres',
+            'password' => 'wwe',
+            'database' => 'VDMS',
             'log' => true,
             'url' => env('DATABASE_URL', null),
         ],

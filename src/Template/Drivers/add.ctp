@@ -1,10 +1,10 @@
-<div class="container-fluid mt-5">
-    <div>
+<div class="card shadow-sm mb-4 mt-5">
+  <div class="card-header bg-dark text-white">
+    <h5 class="mb-0">Add New Driver</h5>
+  </div>
         
         <div class="card-body shadow-lg">
-            <div class="d-flex justify-content-center card-header">
-                 <h4 class="mb-0"><i class="fas fa-id-card"></i> Add New Driver</h4>
-            </div>
+        
             <?= $this->Form->create($driver, [
                 'type' => 'file',
                 'class' => 'row g-4 needs-validation',
@@ -15,7 +15,7 @@
             <div class="col-md-6 mt-5">
                 <?= $this->Form->control('name', [
                     'label' => 'Driver Name',
-                    'class' => 'form-control form-control-lg shadow-sm',
+                    'class' => 'form-control  shadow-sm',
                     'placeholder' => 'Enter full name',
                     'required' => true
                 ]) ?>
@@ -25,7 +25,7 @@
             <div class="col-md-6 mt-5">
                 <?= $this->Form->control('license_no', [
                     'label' => 'Driving License Number',
-                    'class' => 'form-control form-control-lg shadow-sm',
+                    'class' => 'form-control  shadow-sm',
                     'placeholder' => 'Enter license number',
                     'required' => true
                 ]) ?>
@@ -36,7 +36,7 @@
                 <?= $this->Form->control('license_validity', [
                     'label' => 'License Valid Upto',
                     'type' => 'text', // will replace with flatpickr
-                    'class' => 'form-control form-control-lg datepicker',
+                    'class' => 'form-control  datepicker',
                     'placeholder' => 'Select date',
                     'autocomplete' => 'off'
                 ]) ?>
@@ -47,7 +47,7 @@
                 <?= $this->Form->control('joining_date', [
                     'label' => 'Date of Appointment',
                     'type' => 'text',
-                    'class' => 'form-control form-control-lg datepicker',
+                    'class' => 'form-control  datepicker',
                     'placeholder' => 'Select date',
                     'autocomplete' => 'off'
                 ]) ?>
@@ -58,7 +58,7 @@
                 <?= $this->Form->control('status', [
                     'label' => 'Status',
                     'options' => ['Active' => 'Active', 'Transferred' => 'Transferred', 'Retired' => 'Retired'],
-                    'class' => 'form-control form-control-lg  form-select  shadow-sm',
+                    'class' => 'form-control   form-select  shadow-sm',
                     'empty' => '-- Select Status --',
                     'id' => 'driver-status'
                 ]) ?>
@@ -70,7 +70,7 @@
                 <?= $this->Form->control('status_date', [
                     'label' => 'Date of Status Apply',
                     'type' => 'text',
-                    'class' => 'form-control form-control-lg datepicker',
+                    'class' => 'form-control  datepicker',
                     'placeholder' => 'Select date',
                     'autocomplete' => 'off'
                 ]) ?>
@@ -80,7 +80,7 @@
             <div class="col-md-6 mt-5">
                 <?= $this->Form->control('allotted_vehicle_type', [
                     'label' => 'Allotted Vehicle Type',
-                    'class' => 'form-control form-control-lg shadow-sm',
+                    'class' => 'form-control  shadow-sm',
                     'placeholder' => 'E.g., Sedan, SUV'
                 ]) ?>
             </div>
@@ -89,7 +89,7 @@
             <div class="col-md-6 mt-5">
                 <?= $this->Form->control('allotted_vehicle_no', [
                     'label' => 'Allotted Vehicle Number',
-                    'class' => 'form-control form-control-lg shadow-sm',
+                    'class' => 'form-control  shadow-sm',
                     'placeholder' => 'Enter number'
                 ]) ?>
             </div>
@@ -99,7 +99,7 @@
                 <?= $this->Form->control('allotment_date', [
                     'label' => 'Date of Allotment',
                     'type' => 'text',
-                    'class' => 'form-control form-control-lg datepicker',
+                    'class' => 'form-control  datepicker',
                     'placeholder' => 'Select date',
                     'autocomplete' => 'off'
                 ]) ?>
@@ -112,7 +112,7 @@
                     'type' => 'select',
                     // 'options' => $users,
                     'empty' => '-- Select User --',
-                    'class' => 'form-control form-control-lg  form-select  shadow-sm'
+                    'class' => 'form-control   form-select  shadow-sm'
                 ]) ?>
             </div>
 
@@ -121,7 +121,7 @@
                 <?= $this->Form->control('license_doc', [
                     'label' => 'Upload Driving License',
                     'type' => 'file',
-                    'class' => 'form-control form-control-lg shadow-sm',
+                    'class' => 'form-control  shadow-sm',
                     'accept' => '.pdf,.jpg,.jpeg,.png'
                 ]) ?>
             </div>
@@ -129,7 +129,7 @@
                 <?= $this->Form->control('appointment_order', [
                     'label' => 'Upload Appointment Order',
                     'type' => 'file',
-                    'class' => 'form-control form-control-lg shadow-sm',
+                    'class' => 'form-control  shadow-sm',
                     'accept' => '.pdf,.jpg,.jpeg,.png'
                 ]) ?>
             </div>
@@ -144,7 +144,7 @@
 
             <?= $this->Form->end() ?>
         </div>
-    </div>
+   
 </div>
 
 <!-- JS: Dynamic Status Date -->
