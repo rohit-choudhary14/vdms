@@ -16,14 +16,17 @@ class VehiclesController extends AppController
 
     public function index()
     {
-        $this->paginate = ['limit' => 10, 'order' => ['Vehicles.id' => 'DESC']];
+        $this->paginate = ['limit' => 10, 'order' => ['Vehicles.code' => 'DESC']];
         $vehicles = $this->paginate($this->Vehicles->find());
         $this->set(compact('vehicles'));
     }
 
-    public function view($id = null)
+    public function view($vehicle_code = null)
     {
-        $vehicle = $this->Vehicles->get($id, ['contain' => ['Maintenance','Insurance','DriverAssignments']]);
+        $vehicle = $this->Vehicles->find()
+            ->where(['vehicle_code' => $vehicle_code])
+            ->contain(['Maintenance', 'Insurance', 'DriverAssignments'])
+            ->firstOrFail();
         $this->set('vehicle', $vehicle);
     }
 
@@ -34,11 +37,10 @@ class VehiclesController extends AppController
             $data = $this->request->getData();
 
             if (empty($data['vehicle_code'])) {
-                $data['vehicle_code'] = 'VEH-'.strtoupper(Text::uuid());
+                $data['vehicle_code'] = 'VEH-' . strtoupper(Text::uuid());
             }
-
             // handle uploads
-            $uploads = ['registration_doc','bill_doc','photo_front','photo_back'];
+            $uploads = ['registration_doc', 'bill_doc', 'photo_front', 'photo_back'];
             foreach ($uploads as $field) {
                 if (!empty($this->request->getData($field)['name'])) {
                     $file = $this->request->getData($field);
@@ -49,7 +51,6 @@ class VehiclesController extends AppController
                     $data[$field] = 'uploads/' . $name;
                 }
             }
-
             $vehicle = $this->Vehicles->patchEntity($vehicle, $data);
             if ($this->Vehicles->save($vehicle)) {
                 $this->Flash->success(__('Vehicle saved.'));
@@ -60,45 +61,74 @@ class VehiclesController extends AppController
         $this->set(compact('vehicle'));
     }
 
-    public function edit($id = null)
+    public function edit($vehicle_code = null)
     {
-        $vehicle = $this->Vehicles->get($id);
-        if ($this->request->is(['post','put','patch'])) {
+        $vehicle = $this->Vehicles->find()
+            ->where(['vehicle_code' => $vehicle_code])
+            ->firstOrFail();
+
+        if ($this->request->is(['post', 'put', 'patch'])) {
             $data = $this->request->getData();
 
-            $uploads = ['registration_doc','bill_doc','photo_front','photo_back'];
+            $uploads = ['registration_doc', 'bill_doc', 'photo_front', 'photo_back'];
+
             foreach ($uploads as $field) {
-                if (!empty($this->request->getData($field)['name'])) {
-                    $file = $this->request->getData($field);
+                $file = $this->request->getData($field);
+
+                if (!empty($file['name'])) {
+                    if (!empty($vehicle->$field) && file_exists(WWW_ROOT . 'img' . DS . $vehicle->$field)) {
+                        unlink(WWW_ROOT . 'img' . DS . $vehicle->$field);
+                    }
                     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
                     $name = uniqid() . '_' . time() . '.' . $ext;
                     $target = WWW_ROOT . 'img' . DS . 'uploads' . DS . $name;
                     move_uploaded_file($file['tmp_name'], $target);
-                    $data[$field] = 'uploads/' . $name;
+
+                    $data[$field] = 'uploads' . DS . $name;
                 } else {
-                    unset($data[$field]); // keep existing
+                    unset($data[$field]);
                 }
             }
-
             $vehicle = $this->Vehicles->patchEntity($vehicle, $data);
+
             if ($this->Vehicles->save($vehicle)) {
-                $this->Flash->success(__('Vehicle updated.'));
+                $this->Flash->success(__('Vehicle updated successfully.'));
                 return $this->redirect(['action' => 'index']);
             }
+
             $this->Flash->error(__('Please fix the errors and try again.'));
         }
+
         $this->set(compact('vehicle'));
     }
-
-    public function delete($id = null)
+    public function delete($vehicle_code = null)
     {
-        $this->request->allowMethod(['post','delete']);
-        $vehicle = $this->Vehicles->get($id);
-        if ($this->Vehicles->delete($vehicle)) {
-            $this->Flash->success(__('Vehicle deleted.'));
-        } else {
-            $this->Flash->error(__('Unable to delete vehicle.'));
+        $this->request->allowMethod(['post', 'delete']);
+
+        $vehicle = $this->Vehicles->find()
+            ->where(['vehicle_code' => $vehicle_code])
+            ->firstOrFail();
+        if (!empty($vehicle->bill_doc) && file_exists(WWW_ROOT . 'img' . DS . $vehicle->bill_doc)) {
+            unlink(WWW_ROOT . 'img' . DS . $vehicle->bill_doc);
         }
+        if (!empty($vehicle->registration_doc) && file_exists(WWW_ROOT . 'img'   . DS . $vehicle->registration_doc)) {
+            unlink(WWW_ROOT . 'img' .  DS . $vehicle->registration_doc);
+        }
+
+        if (!empty($vehicle->photo_back) && file_exists(WWW_ROOT . 'img' . DS . $vehicle->photo_back)) {
+            unlink(WWW_ROOT . 'img' . DS . $vehicle->photo_back);
+        }
+        if (!empty($vehicle->photo_front) && file_exists(WWW_ROOT . 'img' . DS. $vehicle->photo_front)) {
+            unlink(WWW_ROOT . 'img' . DS. $vehicle->photo_front);
+        }
+
+        if ($this->Vehicles->delete($vehicle)) {
+            $this->Flash->success(__('Vehicle and associated files deleted.'));
+        } else {
+            $this->Flash->error(__('Unable to delete vehicle. Please try again.'));
+        }
+
         return $this->redirect(['action' => 'index']);
     }
+
 }

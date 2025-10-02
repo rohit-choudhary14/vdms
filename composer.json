@@ -9,7 +9,10 @@
         "cakephp/cakephp": "3.9.*",
         "cakephp/migrations": "^2.0.0",
         "cakephp/plugin-installer": "^1.0",
-        "mobiledetect/mobiledetectlib": "2.*"
+        "dompdf/dompdf": "^3.1",
+        "friendsofcake/cakepdf": "^3.5",
+        "mobiledetect/mobiledetectlib": "2.*",
+        "phpoffice/phpspreadsheet": "^1.30"
     },
     "require-dev": {
         "cakephp/bake": "^1.9.0",
