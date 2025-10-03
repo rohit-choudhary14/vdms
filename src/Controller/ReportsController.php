@@ -29,7 +29,7 @@ class ReportsController extends AppController
             $output = $data['output'];
 
             if ($reportType === 'driver') {
-                $id = $data['driver_id'] ?: null;
+                $id = $data['driver_code'] ?: null;
                 if (!$id) {
                     $this->Flash->error("Please select a driver.");
                     return $this->redirect($this->referer());
@@ -42,7 +42,7 @@ class ReportsController extends AppController
                     return $this->redirect(['action' => 'driverReportExcel', $id]);
                 }
             } elseif ($reportType === 'vehicle') {
-                $id = $data['vehicle_id'] ?: null;
+                $id = $data['vehicle_code'] ?: null;
                 if (!$id) {
                     $this->Flash->error("Please select a vehicle.");
                     return $this->redirect($this->referer());
@@ -80,7 +80,7 @@ class ReportsController extends AppController
 
         $accidents = $this->Accidents->find()
             ->contain(['Vehicles'])
-            ->where(['Accidents.driver_id' => $driverId])
+            ->where(['Accidents.driver_code' => $driverId])
             ->order(['Accidents.date_time' => 'DESC'])
             ->toArray();
 
@@ -126,28 +126,28 @@ class ReportsController extends AppController
         $this->loadModel('Maintenance');
         $this->loadModel('Insurance');
         $this->loadModel('Accidents');
-        //    echo $vehicleId;
-//    die();
-        $vehicle = $this->Vehicles->get($vehicleId);
-
+        $vehicle = $this->Vehicles->find()
+                ->where(['vehicle_code' => $vehicleId])
+                ->first();
+      
         $fuelLogs = $this->Fuel->find()
             ->contain(['Drivers'])
-            ->where(['Fuel.vehicle_id' => $vehicleId])
+            ->where(['Fuel.vehicle_code' => $vehicleId])
             ->order(['Fuel.refuel_date' => 'DESC'])
             ->toArray();
 
         $maintenance = $this->Maintenance->find()
-            ->where(['vehicle_id' => $vehicleId])
+            ->where(['vehicle_code' => $vehicleId])
             ->order(['service_date' => 'DESC'])
             ->toArray();
 
         $insurance = $this->Insurance->find()
-            ->where(['vehicle_id' => $vehicleId])
+            ->where(['vehicle_code' => $vehicleId])
             ->order(['expiry_date' => 'DESC'])
             ->toArray();
 
         $accidents = $this->Accidents->find()
-            ->where(['vehicle_id' => $vehicleId])
+            ->where(['vehicle_code' => $vehicleId])
             ->order(['date_time' => 'DESC'])
             ->toArray();
 

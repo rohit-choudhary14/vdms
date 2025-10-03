@@ -45,8 +45,8 @@
           <?php foreach ($accidents as $accident): ?>
             <tr>
               <td class="fw-semibold"><?= h($accident->accident_id) ?></td>
-              <td><span class="badge bg-info"><?= h(!empty($accident->vehicle->registration_no) ? $accident->vehicle->registration_no : $accident->vehicle_id) ?></span></td>
-              <td><span class="badge bg-secondary"><?= h(!empty($accident->driver->name) ? $accident->driver->name : $accident->driver_id) ?></span></td>
+              <td><span ><?= h(!empty($accident->vehicle->registration_no) ? $accident->vehicle->registration_no : $accident->vehicle_id) ?></span></td>
+              <td><span><?= h(!empty($accident->driver->name) ? $accident->driver->name : $accident->driver_id) ?></span></td>
               <td><?= h($accident->date_time->format('d M Y H:i')) ?></td>
               <td><?= h($accident->location) ?></td>
               <td><?= h($accident->nature_of_accident) ?></td>

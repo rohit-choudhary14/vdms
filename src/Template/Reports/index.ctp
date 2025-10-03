@@ -29,7 +29,7 @@
 
         <!-- Driver Select -->
         <div class="col-md-4" id="driverSelect" style="display:none;">
-            <?= $this->Form->control('driver_id', [
+            <?= $this->Form->control('driver_code', [
                 'label' => 'Select Driver',
                 'options' => $drivers,
                 'empty' => 'Choose Driver...',
@@ -40,7 +40,7 @@
 
         <!-- Vehicle Select -->
         <div class="col-md-4" id="vehicleSelect" style="display:none;">
-            <?= $this->Form->control('vehicle_id', [
+            <?= $this->Form->control('vehicle_code', [
                 'label' => 'Select Vehicle',
                 'options' => $vehicles,
                 'empty' => 'Choose Vehicle...',

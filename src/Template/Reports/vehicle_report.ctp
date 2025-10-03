@@ -89,7 +89,7 @@
             <?php foreach ($insurance as $ins): ?>
                 <tr>
                     <td><?= h($ins->policy_no) ?></td>
-                    <td><?= h($ins->provider) ?></td>
+                    <td><?= h($ins->insurer_name) ?></td>
                     <td><?= h($ins->start_date->format('Y-m-d')) ?></td>
                     <td><?= h($ins->expiry_date->format('Y-m-d')) ?></td>
                     <td><?= h($ins->premium_amount) ?></td>

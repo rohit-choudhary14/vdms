@@ -1,107 +1,96 @@
-<div class="container my-5">
-    <div class="card shadow-lg border-0 rounded-4">
-        <!-- Header -->
-        <div class="card-header bg-dark bg-gradient text-white d-flex align-items-center py-3">
-            <i class="fas fa-tasks me-2 fs-5"></i>
-            <h5 class="mb-0"><?= $assignment->id ? 'Edit Driver Assignment' : 'Add Driver Assignment' ?></h5>
-        </div>
-
-        <!-- Body -->
-        <div class="card-body p-4">
-            <?= $this->Form->create($assignment, ['class' => 'needs-validation', 'novalidate' => true]) ?>
-
-            <div class="row g-4">
-                <!-- Driver -->
-                <!-- Driver -->
-                <div class="col-md-6 col-sm-12">
-                    <label class="form-label fw-semibold" for="driver-id">Driver <span
-                            class="text-danger">*</span></label>
-                    <?= $this->Form->control('driver_id', [
-                        'options' => $drivers,
-                        'class' => 'form-select select2',
-                        'label' => false,
-                        'empty' => 'Select Driver'
-                    ]) ?>
-                </div>
-
-                <!-- Vehicle -->
-                <div class="col-md-6 col-sm-12">
-                    <label class="form-label fw-semibold" for="vehicle-id">Vehicle <span
-                            class="text-danger">*</span></label>
-                    <?= $this->Form->control('vehicle_id', [
-                        'options' => $vehicles,
-                        'class' => 'form-select select2',
-                        'label' => false,
-                        'empty' => 'Select Vehicle'
-                    ]) ?>
-                </div>
-
-
-                <!-- Start Date -->
-                <div class="col-md-6 col-sm-12">
-                    <label class="form-label fw-semibold" for="start-date">Start Date</label>
-                    <div class="input-group  ">
-                        <span class="input-group-text bg-white border-0"><i
-                                class="fas fa-calendar-alt text-primary"></i></span>
-                        <?= $this->Form->control('start_date', [
-                            'type' => 'text',
-                            'class' => 'form-control rounded-end border-0 datepicker',
-                            'label' => false,
-                            'placeholder' => 'Select start date',
-                            'autocomplete' => 'off'
-                        ]) ?>
-                    </div>
-                </div>
-
-                <!-- End Date -->
-                <div class="col-md-6 col-sm-12">
-                    <label class="form-label fw-semibold" for="end-date">End Date</label>
-                    <div class="input-group  ">
-                        <span class="input-group-text bg-white border-0"><i
-                                class="fas fa-calendar-check text-primary"></i></span>
-                        <?= $this->Form->control('end_date', [
-                            'type' => 'text',
-                            'class' => 'form-control rounded-end border-0 datepicker',
-                            'label' => false,
-                            'placeholder' => 'Select end date',
-                            'autocomplete' => 'off'
-                        ]) ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="d-flex flex-wrap justify-content-end gap-3 mt-4">
-                <?= $this->Form->button('<i class="fas fa-save me-1"></i> Save', [
-                    'class' => 'btn btn-success px-4 py-2  fw-semibold text-white ',
-                    'escapeTitle' => false
-                ]) ?>
-
-                <?= $this->Html->link(
-                    '<i class="fas fa-arrow-left me-1"></i> Back',
-                    ['action' => 'index'],
-                    ['class' => 'btn btn-secondary px-4 py-2  fw-semibold ', 'escapeTitle' => false]
-                ) ?>
-            </div>
-
-            <?= $this->Form->end() ?>
-        </div>
-    </div>
+<!-- Back Button -->
+<div class="mt-5">
+    <?= $this->Html->link(
+        '<i class="fas fa-arrow-left me-1"></i> Back',
+        ['action' => 'index'],
+        ['class' => 'btn btn-outline-dark', 'escape' => false]
+    ) ?>
 </div>
 
-<!-- Datepicker + Validation -->
-<script>
-$(document).ready(function(){
+<!-- Card -->
+<div class="card shadow-sm mb-4 mt-2">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><?= $assignment->id ? 'Edit Driver Assignment' : 'Add Driver Assignment' ?></h5>
+    </div>
 
-    // Initialize datepicker
-    $('.datepicker').datepicker({
-        format: 'yyyy-mm-dd',
-        autoclose: true,
-        todayHighlight: true,
-        orientation: 'bottom auto'
+    <div class="card-body">
+        <?= $this->Form->create($assignment, [
+            'class' => 'row g-4 needs-validation',
+            'novalidate' => true
+        ]) ?>
+
+        <!-- Driver -->
+        <div class="col-md-6 mt-3">
+            <?= $this->Form->control('driver_id', [
+                'label' => 'Driver <span class="text-danger">*</span>',
+                'escape' => false,
+                'options' => $drivers,
+                'empty' => 'Select Driver',
+                'class' => 'form-control select2',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- Vehicle -->
+        <div class="col-md-6 mt-3">
+            <?= $this->Form->control('vehicle_id', [
+                'label' => 'Vehicle <span class="text-danger">*</span>',
+                'escape' => false,
+                'options' => $vehicles,
+                'empty' => 'Select Vehicle',
+                'class' => 'form-control select2',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- Start Date -->
+        <div class="col-md-6 mt-3">
+            <?= $this->Form->control('start_date', [
+                'type' => 'text',
+                'label' => 'Start Date',
+                'placeholder' => 'Select start date',
+                'class' => 'form-control datetimepicker',
+                'autocomplete' => 'off',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- End Date -->
+        <div class="col-md-6 mt-3">
+            <?= $this->Form->control('end_date', [
+                'type' => 'text',
+                'label' => 'End Date',
+                'placeholder' => 'Select end date',
+                'class' => 'form-control datetimepicker',
+                'autocomplete' => 'off',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-12 text-end mt-4">
+            <?= $this->Form->button('<i class="fas fa-save me-1"></i> Save Assignment', [
+                'escape' => false,
+                'class' => 'btn btn-success btn-lg px-5 shadow-sm'
+            ]) ?>
+        </div>
+
+        <?= $this->Form->end() ?>
+    </div>
+</div>
+<!-- Flatpickr & Select2 Setup -->
+<script>
+$(document).ready(function () {
+    // Flatpickr DateTime Picker
+    flatpickr(".datetimepicker", {
+        enableTime: false,
+        dateFormat: "Y-m-d",
+        allowInput: true,
+        altInput: true,
+        altFormat: "F j, Y"
     });
 
-    // Initialize Select2 with Bootstrap 5 theme
+    // Select2 with Bootstrap 5 theme
     $('.select2').select2({
         theme: 'bootstrap-5',
         width: '100%',
@@ -111,9 +100,9 @@ $(document).ready(function(){
 
     // Bootstrap client-side validation
     var forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form){
-        form.addEventListener('submit', function(event){
-            if (!form.checkValidity()){
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
             }
@@ -122,3 +111,11 @@ $(document).ready(function(){
     });
 });
 </script>
+
+<!-- Optional: Error styling (already included in your example) -->
+<style>
+.form-error {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+</style>

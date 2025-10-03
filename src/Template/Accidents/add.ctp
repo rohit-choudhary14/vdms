@@ -19,7 +19,7 @@
 
         <!-- Vehicle -->
         <div class="col-md-6 mt-3">
-            <?= $this->Form->control('vehicle_id', [
+            <?= $this->Form->control('vehicle_code', [
                 'label' => 'Vehicle',
                 'options' => $vehicles,
                 'class' => 'form-control',
@@ -29,7 +29,7 @@
 
         <!-- Driver -->
         <div class="col-md-6 mt-3">
-            <?= $this->Form->control('driver_id', [
+            <?= $this->Form->control('driver_code', [
                 'label' => 'Driver',
                 'options' => $drivers,
                 'class' => 'form-control',

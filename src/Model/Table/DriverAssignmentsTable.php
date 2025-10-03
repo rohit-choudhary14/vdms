@@ -18,12 +18,14 @@ class DriverAssignmentsTable extends Table
         $this->addBehavior('Timestamp');
 
         $this->belongsTo('Drivers', [
-            'foreignKey' => 'driver_id',
+            'foreignKey' => 'driver_code',
+              'bindingKey' => 'driver_code',  
             'joinType' => 'INNER',
         ]);
 
         $this->belongsTo('Vehicles', [
-            'foreignKey' => 'vehicle_id',
+            'foreignKey' => 'vehicle_code',
+             'bindingKey' => 'vehicle_code',
             'joinType' => 'INNER',
         ]);
     }
@@ -31,12 +33,12 @@ class DriverAssignmentsTable extends Table
     public function validationDefault(Validator $validator)
     {
         $validator
-            ->requirePresence('driver_id')
-            ->notEmptyString('driver_id', 'Driver is required');
+            ->requirePresence('driver_code')
+            ->notEmptyString('driver_code', 'Driver is required');
 
         $validator
-            ->requirePresence('vehicle_id')
-            ->notEmptyString('vehicle_id', 'Vehicle is required');
+            ->requirePresence('vehicle_code')
+            ->notEmptyString('vehicle_code', 'Vehicle is required');
 
         $validator
             ->requirePresence('start_date')
@@ -51,7 +53,7 @@ class DriverAssignmentsTable extends Table
         $rules->add(function ($entity, $options) {
             $query = $this->find()
                 ->where([
-                    'driver_id' => $entity->driver_id,
+                    'driver_code' => $entity->driver_code,
                     'id !=' => $entity->id,
                     'OR' => [
                         ['end_date IS NULL'],
@@ -61,15 +63,13 @@ class DriverAssignmentsTable extends Table
                 ]);
             return $query->count() === 0;
         }, 'driverOverlap', [
-            'errorField' => 'driver_id',
+            'errorField' => 'driver_code',
             'message' => 'This driver already has an overlapping assignment.'
         ]);
-
-        // Prevent overlapping assignments for the same vehicle
         $rules->add(function ($entity, $options) {
             $query = $this->find()
                 ->where([
-                    'vehicle_id' => $entity->vehicle_id,
+                    'vehicle_code' => $entity->vehicle_code,
                     'id !=' => $entity->id,
                     'OR' => [
                         ['end_date IS NULL'],
@@ -79,7 +79,7 @@ class DriverAssignmentsTable extends Table
                 ]);
             return $query->count() === 0;
         }, 'vehicleOverlap', [
-            'errorField' => 'vehicle_id',
+            'errorField' => 'vehicle_code',
             'message' => 'This vehicle already has an overlapping assignment.'
         ]);
 

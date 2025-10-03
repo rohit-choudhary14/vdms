@@ -17,7 +17,7 @@
     <h3>Driver Details</h3>
     <p><strong>Name:</strong> <?= h($driver->name) ?></p>
     <p><strong>License No:</strong> <?= h($driver->license_no ?: 'N/A') ?></p>
-    <p><strong>Phone:</strong> <?= h($driver->phone ?: 'N/A') ?></p>
+    <p><strong>Phone:</strong> <?= h($driver->contact_no ?: 'N/A') ?></p>
 
     <h3>Fuel Logs</h3>
     <table>
@@ -64,7 +64,7 @@
                     <td><?= h($accident->date_time->format('Y-m-d H:i')) ?></td>
                     <td><?= h($accident->vehicle->registration_no ?: 'N/A') ?></td>
                     <td><?= h($accident->details ?: '-') ?></td>
-                    <td><?= h($accident->cost ?: '-') ?></td>
+                    <td><?= h($accident->repair_cost ?: '-') ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>
