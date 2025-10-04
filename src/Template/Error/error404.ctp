@@ -1,9 +1,7 @@
 <?php
-
 use Cake\Core\Configure;
 
-$this->assign('title', '500 - Internal Server Error');
-
+$this->assign('title', '404 - Page Not Found');
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +30,7 @@ $this->assign('title', '500 - Internal Server Error');
         .error-code {
             font-size: 64px;
             font-weight: 700;
-            color: #dc3545;
+            color: #17a2b8; /* Blue tone for 404 errors */
         }
         .error-message {
             font-size: 20px;
@@ -53,20 +51,34 @@ $this->assign('title', '500 - Internal Server Error');
             border-radius: 5px;
             transition: background-color 0.2s ease;
         }
-       
+    
+        .debug-info {
+            margin-top: 40px;
+            text-align: left;
+            font-size: 14px;
+            color: #0c5460;
+            background-color: #d1ecf1;
+            padding: 15px;
+            border-left: 4px solid #17a2b8;
+        }
     </style>
 </head>
 <body>
     <div class="error-container">
-        <div class="error-code">500</div>
-        <div class="error-message">Internal Server Error</div>
+        <div class="error-code">404</div>
+        <div class="error-message">Page Not Found</div>
         <div class="error-description">
-            Oops! Something went wrong on our side.<br>
-            Please try again later or contact the site administrator if the issue continues.
+            Sorry, the vehicle or page you are looking for does not exist.<br>
+            It may have been removed, renamed, or never existed.
         </div>
         <a href="<?= $this->Url->build('/') ?>" class="home-button">Go to Homepage</a>
 
-      
+        <?php if (Configure::read('debug')): ?>
+            <div class="debug-info">
+                <strong>Debug Info:</strong><br>
+                <?= h($message) ?>
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 </html>

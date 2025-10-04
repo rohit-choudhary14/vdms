@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\Filesystem\File;
+use Cake\Http\Exception\BadRequestException;
 use Cake\Utility\Text;
 
 class VehiclesController extends AppController
@@ -63,6 +64,9 @@ class VehiclesController extends AppController
 
     public function edit($vehicle_code = null)
     {
+         if ($vehicle_code === null) {
+        throw new BadRequestException('Vehicle code is required.');
+    }
         $vehicle = $this->Vehicles->find()
             ->where(['vehicle_code' => $vehicle_code])
             ->firstOrFail();

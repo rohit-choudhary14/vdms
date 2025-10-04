@@ -21,7 +21,8 @@
         <!-- Vehicle -->
         <div class="col-md-6 mt-3">
             <?= $this->Form->control('vehicle_code', [
-                'options' => $vehicles,
+                // 'options' => $vehicles,
+                'readonly'=>true,
                 'label' => 'Vehicle',
                 'class' => 'form-control',
                 'required' => true
@@ -35,6 +36,9 @@
                 'class' => 'form-control datepicker',
                 'label' => 'Service Date',
                 'placeholder' => 'Select date',
+                 'value' => !empty($record->service_date)
+                    ? $record->service_date->format('Y-m-d')
+                    : '',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
@@ -116,6 +120,9 @@
                 'class' => 'form-control datepicker',
                 'label' => 'Bill Date',
                 'placeholder' => 'Select date',
+                  'value' => !empty($record->bill_date)
+                    ? $record->bill_date->format('Y-m-d')
+                    : '',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
@@ -133,6 +140,9 @@
                 'class' => 'form-control datepicker',
                 'label' => 'Next Service Due',
                 'placeholder' => 'Select date',
+                 'value' => !empty($record->next_service_due)
+                    ? $record->next_service_due->format('Y-m-d')
+                    : '',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
