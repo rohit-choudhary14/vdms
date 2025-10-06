@@ -26,6 +26,7 @@
         <?= $this->Form->control('registration_no', [
           'class' => 'form-control',
           'label' => 'Registration No',
+            'readonly' => !$vehicle->isNew(),
           'placeholder' => 'Enter registration number',
           'required' => true,
           'templates' => [

@@ -74,7 +74,7 @@
                   <?= $this->Html->link('<i class="fas fa-eye"></i>', ['action' => 'view', $v->driver_code], ['class' => 'btn btn-light border shadow-sm', 'escape' => false, 'title' => 'View', 'data-bs-toggle' => 'tooltip']) ?>
                   <?= $this->Html->link('<i class="fas fa-edit"></i>', ['action' => 'edit', $v->driver_code], ['class' => 'btn btn-light border text-warning shadow-sm', 'escape' => false, 'title' => 'Edit', 'data-bs-toggle' => 'tooltip']) ?>
                   <?= $this->Form->postLink('<i class="fas fa-trash"></i>', ['action' => 'delete', $v->driver_code], ['confirm' => 'Are you sure?', 'class' => 'btn btn-light border text-danger shadow-sm', 'escape' => false, 'title' => 'Delete', 'data-bs-toggle' => 'tooltip']) ?>
-                  <?= $this->Html->link('<i class="fas fa-tasks"></i>', ['controller' => 'DriverAssignments', 'action' => 'index', '?' => ['driver_id' => $v->id]], ['class' => 'btn btn-light border text-primary shadow-sm', 'escape' => false, 'title' => 'Manage Assignments', 'data-bs-toggle' => 'tooltip']) ?>
+                  <?= $this->Html->link('<i class="fas fa-tasks"></i>', ['controller' => 'DriverAssignments', 'action' => 'index', '?' => ['driver_code' => $v->driver_code]], ['class' => 'btn btn-light border text-primary shadow-sm', 'escape' => false, 'title' => 'Manage Assignments', 'data-bs-toggle' => 'tooltip']) ?>
                 </div>
               </td>
             </tr>

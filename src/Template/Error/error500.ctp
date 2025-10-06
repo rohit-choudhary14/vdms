@@ -65,7 +65,12 @@ $this->assign('title', '500 - Internal Server Error');
             Please try again later or contact the site administrator if the issue continues.
         </div>
         <a href="<?= $this->Url->build('/') ?>" class="home-button">Go to Homepage</a>
-
+  <?php if (Configure::read('debug')): ?>
+            <div class="debug-info">
+                <strong>Debug Info:</strong><br>
+                <?= h($message) ?>
+            </div>
+        <?php endif; ?>
       
     </div>
 </body>

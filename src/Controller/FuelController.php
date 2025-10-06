@@ -42,8 +42,14 @@ class FuelController extends AppController
             $this->Flash->error('Unable to add fuel log.');
         }
 
-        $vehicles = $this->Fuel->Vehicles->find('list');
-        $drivers = $this->Fuel->Drivers->find('list');
+        $vehicles = $this->Fuel->Vehicles->find('list', [
+            'keyField' => 'vehicle_code',
+            'valueField' => 'registration_no'
+        ])->toArray();
+        $drivers = $this->Fuel->Drivers->find('list', [
+            'keyField' => 'driver_code',
+            'valueField' => 'name'
+        ])->toArray();
         $this->set(compact('fuelLog', 'vehicles', 'drivers'));
     }
 
@@ -73,8 +79,14 @@ class FuelController extends AppController
             $this->Flash->error('Unable to update fuel log.');
         }
 
-        $vehicles = $this->Fuel->Vehicles->find('list');
-        $drivers = $this->Fuel->Drivers->find('list');
+        $vehicles = $this->Fuel->Vehicles->find('list', [
+            'keyField' => 'vehicle_code',
+            'valueField' => 'registration_no'
+        ])->toArray();
+        $drivers = $this->Fuel->Drivers->find('list', [
+            'keyField' => 'driver_code',
+            'valueField' => 'name'
+        ])->toArray();
         $this->set(compact('fuelLog', 'vehicles', 'drivers'));
     }
 

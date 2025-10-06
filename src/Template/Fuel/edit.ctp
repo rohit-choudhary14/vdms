@@ -3,8 +3,8 @@
     <?= $this->Form->create($fuelLog, ['class'=>'mt-3']) ?>
 
     <div class="row">
-        <div class="col-md-6"><?= $this->Form->control('vehicle_id', ['options'=>$vehicles,'class'=>'form-control','label'=>'Vehicle','id'=>'vehicle']) ?></div>
-        <div class="col-md-6"><?= $this->Form->control('driver_id', ['options'=>$drivers,'class'=>'form-control','label'=>'Driver','id'=>'driver']) ?></div>
+        <div class="col-md-6"><?= $this->Form->control('vehicle_code', ['class'=>'form-control', 'readonly'=>true,'label'=>'Vehicle','id'=>'vehicle']) ?></div>
+        <div class="col-md-6"><?= $this->Form->control('driver_code', ['class'=>'form-control','readonly'=>true,'label'=>'Driver','id'=>'driver']) ?></div>
     </div>
 
     <div class="row mt-3">

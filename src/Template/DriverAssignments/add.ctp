@@ -21,7 +21,7 @@
 
         <!-- Driver -->
         <div class="col-md-6 mt-3">
-            <?= $this->Form->control('driver_id', [
+            <?= $this->Form->control('driver_code', [
                 'label' => 'Driver <span class="text-danger">*</span>',
                 'escape' => false,
                 'options' => $drivers,
@@ -33,7 +33,7 @@
 
         <!-- Vehicle -->
         <div class="col-md-6 mt-3">
-            <?= $this->Form->control('vehicle_id', [
+            <?= $this->Form->control('vehicle_code', [
                 'label' => 'Vehicle <span class="text-danger">*</span>',
                 'escape' => false,
                 'options' => $vehicles,
