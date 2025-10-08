@@ -1,4 +1,5 @@
 <?php
+
 use Psy\Readline\Hoa\Autocompleter;
 ?>
 <div class="mt-5">
@@ -26,8 +27,8 @@ use Psy\Readline\Hoa\Autocompleter;
             <?= $this->Form->control('vehicle_code', [
                 'options' => $vehicles,
                 'label' => 'Vehicle Registration Number',
-                'class' => 'form-select form-control',
-                'empty' => 'Select Vehicle',
+                'class' => 'form-select form-control select2',
+                'empty' => 'Select Vehicle ',
                 'required' => true,
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
@@ -51,7 +52,7 @@ use Psy\Readline\Hoa\Autocompleter;
         <!-- Nature -->
         <div class="col-md-6">
             <?= $this->Form->control('nature', [
-                'options' => ['Comprehensive' => 'Comprehensive', 'Third Party' => 'Third Party'],
+                'options' => ['Comprehensive' => 'Comprehensive', 'Third Party' => 'Third Party', 'Comprehensive + Third Party ' => 'Comprehensive+Third Party'],
                 'class' => 'form-select form-control',
                 'label' => 'Policy Nature',
                 'empty' => 'Select Type',
@@ -79,14 +80,19 @@ use Psy\Readline\Hoa\Autocompleter;
         <div class="col-md-6">
             <?= $this->Form->control('insurer_contact', [
                 'label' => 'Insurer Contact',
+                'type' => 'tel',
                 'class' => 'form-control',
                 'placeholder' => 'Enter contact number',
-                'maxlength' => 15,
+                'maxlength' => 10,
+                'minlength' => 10,
+                'pattern' => '\d{10}',
+                'title' => 'Please enter a valid 10-digit contact number (digits only)',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
         </div>
+
         <div class="col-md-6">
             <?= $this->Form->control('insurer_address', [
                 'label' => 'Insurer Address',
@@ -143,13 +149,14 @@ use Psy\Readline\Hoa\Autocompleter;
                 'placeholder' => 'Select due date',
                 'autocomplete' => 'off',
                 'value' => !empty($insurance->next_due)
-                    ? $insurance->next_due->format('Y-m-d')
+                    ? $insurance->next_due->format('d/m/Y')
                     : '',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
         </div>
+
 
         <!-- Premium & Addons -->
         <div class="col-md-6">
@@ -163,20 +170,34 @@ use Psy\Readline\Hoa\Autocompleter;
                 ]
             ]) ?>
         </div>
-        <div class="col-md-6">
-            <?= $this->Form->control('addons', [
-                'label' => 'Addons',
-                'type' => 'textarea',
-                'rows' => 2,
-                'class' => 'form-control',
-                'placeholder' => 'Enter additional coverage if any',
-                'templates' => [
-                    'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]
-            ]) ?>
-        </div>
+        
+<div class="col-md-6">
+    <?= $this->Form->control('addons[]', [
+        'type' => 'select',
+        'label' => 'Select Add-ons Coverage',
+        'options' => [
+            'zero_depreciation' => 'Zero Depreciation Cover',
+            'engine_protection' => 'Engine Protection Cover',
+            'roadside_assistance' => 'Roadside Assistance Cover',
+            'return_to_invoice' => 'Return to Invoice Cover',
+            'key_replacement' => 'Key Replacement Cover',
+            'consumables' => 'Consumables Cover',
+            'ncb_protection' => 'No Claim Bonus Protection',
+            'personal_accident' => 'Personal Accident Cover for Owner-Driver',
+        ],
+        'multiple' => true,
+        'class' => 'form-control select2-multi',  // extra class for JS selector
+        'labelOptions' => ['style' => 'font-weight:bold;'],
+        'empty' => false,
+    ]) ?>
+</div>
 
-       
+
+
+
+
+
+
 
 
         <div class="col-md-6">
@@ -190,7 +211,7 @@ use Psy\Readline\Hoa\Autocompleter;
                 ]
             ]) ?>
         </div>
-         <!-- File Upload -->
+        <!-- File Upload -->
         <div class="col-md-6 mt-5">
             <div class="card shadow-sm border-0 h-100 upload-zone text-center p-3">
                 <h6 class="fw-bold mb-2"><i class="fas fa-file-alt me-2"></i>Upload Insurance Document</h6>
@@ -212,18 +233,18 @@ use Psy\Readline\Hoa\Autocompleter;
         </div>
         <!-- Renewal & Status -->
         <div class="col-md-6">
-   
-    <div class="form-check mt-4">
-        <?= $this->Form->control('renewal_alert', [
-            'type' => 'checkbox',
-            'label' => 'Enable Renewal Alert', 
-            'class' => 'form-check-input',
-            'templates' => [
-                'inputContainer' => '<div class="form-check">{{content}}</div>'
-            ]
-        ]) ?>
-    </div>
-</div>
+
+            <div class="form-check mt-4">
+                <?= $this->Form->control('renewal_alert', [
+                    'type' => 'checkbox',
+                    'label' => 'Enable Renewal Alert',
+                    'class' => 'form-check-input',
+                    'templates' => [
+                        'inputContainer' => '<div class="form-check">{{content}}</div>'
+                    ]
+                ]) ?>
+            </div>
+        </div>
 
 
 
@@ -254,19 +275,26 @@ use Psy\Readline\Hoa\Autocompleter;
 </style>
 
 <script>
-    $(document).ready(function () {
-        $(".browse-btn").on("click", function () {
+    $(document).ready(function() {
+         $('.select2-multi').select2({
+        placeholder: "Select Add-ons Coverage",
+        closeOnSelect: false,
+        allowClear: true,
+        
+    });
+   
+        $(".browse-btn").on("click", function() {
             let target = $(this).data("target");
             $(target).trigger("click");
         });
 
-        $(".upload-zone").on("dragover", function (e) {
+        $(".upload-zone").on("dragover", function(e) {
             e.preventDefault();
             $(this).addClass("dragover");
-        }).on("dragleave", function (e) {
+        }).on("dragleave", function(e) {
             e.preventDefault();
             $(this).removeClass("dragover");
-        }).on("drop", function (e) {
+        }).on("drop", function(e) {
             e.preventDefault();
             $(this).removeClass("dragover");
 
@@ -294,8 +322,31 @@ use Psy\Readline\Hoa\Autocompleter;
             reader.readAsDataURL(file);
         }
 
-        $("#insurance_doc").on("change", function () { previewFile(this, "preview_insurance_doc"); });
+        $("#insurance_doc").on("change", function() {
+            previewFile(this, "preview_insurance_doc");
+        });
 
-        flatpickr(".datepicker", { dateFormat: "Y-m-d", allowInput: true });
+        flatpickr(".datepicker", {
+            dateFormat: "d-m-y",
+            allowInput: true
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.querySelector('input[name="insurer_contact"]');
+
+        input.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, ''); // Keep digits only
+
+            if (/^(\d)\1{9}$/.test(this.value)) {
+                alert('Contact number cannot be the same digit repeated.');
+                this.value = '';
+            }
+        });
+         $('.select2').select2({
+        theme: 'bootstrap-5',
+        width: '100%',
+        placeholder: 'Select an option',
+        allowClear: true
+    });
     });
 </script>
