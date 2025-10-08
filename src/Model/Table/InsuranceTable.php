@@ -23,7 +23,7 @@ class InsuranceTable extends Table
     {
         $validator
             ->notEmptyString('policy_no','Policy no required')
-            ->notEmptyString('vehicle_id','Please select vehicle id')
+            ->notEmptyString('vehicle_id','Please select vehicle_code')
             ->notEmptyString('nature','Please select nature of  policy')
             ->notEmptyString('insurer_name','Insurer name is required')
             ->notEmptyString('insurer_contact','Insurer contact is required')

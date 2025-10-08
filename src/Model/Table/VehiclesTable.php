@@ -15,7 +15,8 @@ class VehiclesTable extends Table
 
         $this->hasMany('Maintenance', ['foreignKey' => 'vehicle_code']);
         $this->hasMany('FuelLogs', ['foreignKey' => 'vehicle_code']);
-        $this->hasMany('Insurance', ['foreignKey' => 'vehicle_code']);
+        $this->hasMany('Insurance', ['foreignKey' => 'vehicle_code',
+                                     'bindingKey' => 'vehicle_code']);
         $this->hasMany('DriverAssignments', ['foreignKey' => 'vehicle_code']);
     }
 
