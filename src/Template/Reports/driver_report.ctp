@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Driver Report</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
+        body { font-family: Arial, sans-serif; }
         h2, h3 { margin-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         table, th, td { border: 1px solid #333; }
@@ -12,9 +12,8 @@
         th { background: #f5f5f5; }
     </style>
 </head>
-<body>
-    <h2>Driver Report</h2>
-    <h3>Driver Details</h3>
+<body class="mt-5">
+      <h3>Driver Details</h3>
     <p><strong>Name:</strong> <?= h($driver->name) ?></p>
     <p><strong>License No:</strong> <?= h($driver->license_no ?: 'N/A') ?></p>
     <p><strong>Phone:</strong> <?= h($driver->contact_no ?: 'N/A') ?></p>
@@ -35,7 +34,7 @@
             <?php foreach ($fuelLogs as $log): ?>
                 <tr>
                     <td><?= h($log->refuel_date->format('Y-m-d')) ?></td>
-                    <td><?= h($log->vehicle->registration_no ?$vehicle->registration_no : 'N/A') ?></td>
+                    <td><?= h($log->vehicle->registration_no ?$log->vehicle->registration_no : 'N/A') ?></td>
                     <td><?= h($log->fuel_quantity) ?></td>
                     <td><?= h($log->fuel_cost) ?></td>
                     <td><?= h($log->mileage ?: '-') ?></td>

@@ -34,8 +34,8 @@ class MaintenanceTable extends Table
             ->requirePresence('service_type')
             ->notEmptyString('service_type', 'Service Type is required');
         $validator
-            ->requirePresence('service_vendor')
-            ->notEmptyString('service_vendor', 'Service vendor is required');
+            ->requirePresence('vendor')
+            ->notEmptyString('vendor', 'Service vendor is required');
 
         return $validator;
     }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Vehicle Report</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
+        body { font-family: Arial, sans-serif; }
         h2, h3 { margin-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         table, th, td { border: 1px solid #333; }
@@ -12,8 +12,8 @@
         th { background: #f5f5f5; }
     </style>
 </head>
-<body>
-    <h2>Vehicle Report</h2>
+<body class="mt-5">
+   
     <h3>Vehicle Details</h3>
     <p><strong>Registration No:</strong> <?= h($vehicle->registration_no) ?></p>
     <p><strong>Make/Model:</strong> <?= h($vehicle->make_model ?$vehicle->make_model: 'N/A') ?></p>
@@ -63,8 +63,8 @@
                 <tr>
                     <td><?= h($m->service_date->format('Y-m-d')) ?></td>
                     <td><?= h($m->service_type) ?></td>
-                    <td><?= h($m->service_vendor ?$m->service_vendor: '-') ?></td>
-                    <td><?= h($m->cost_incurred ?$m->cost_incurred: '-') ?></td>
+                    <td><?= h($m->vendor ?$m->vendor: '-') ?></td>
+                    <td><?= h($m->cost ?$m->cost: '-') ?></td>
                 </tr>
             <?php endforeach; ?>
         <?php else: ?>

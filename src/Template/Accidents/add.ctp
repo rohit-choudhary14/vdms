@@ -128,7 +128,7 @@
 <script>
 flatpickr(".datetimepicker", {
     enableTime: true,
-    dateFormat: "Y-m-d H:i",
+    dateFormat: "d-m-Y H:i",
     allowInput: true
 });
 </script>

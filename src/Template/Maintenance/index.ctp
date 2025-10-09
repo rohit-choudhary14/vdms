@@ -48,19 +48,19 @@
           <?php foreach ($maintenance as $m): ?>
             <tr class="text-center align-middle">
               <td class="fw-semibold"><?= h($m->id) ?></td>
-              <td><span class="badge bg-info text-dark"><?= h($m->vehicle->vehicle_code) ?></span></td>
+              <td><span class="badge bg-info text-white"><?= h($m->vehicle->vehicle_code) ?></span></td>
               <td><?= h($m->service_date->format('d M Y')) ?></td>
               <td>
-                <span class="badge rounded-pill px-3 py-1 
-                  <?= $m->service_type === 'Scheduled' ? 'bg-success' : ($m->service_type === 'Breakdown' ? 'bg-danger' : 'bg-warning text-dark') ?>">
+                <span class="badge rounded-pill px-3 py-1  
+                  <?= $m->service_type === 'Scheduled' ? 'bg-success' : ($m->service_type === 'Breakdown' ? 'bg-danger text-white' : 'bg-warning text-white') ?>">
                   <?= h($m->service_type) ?>
                 </span>
               </td>
-              <td><?= h($m->service_vendor) ?></td>
-              <td><strong>₹<?= number_format($m->cost_incurred, 2) ?></strong></td>
+              <td><?= h($m->vendor) ?></td>
+              <td><strong>₹<?= number_format($m->cost, 2) ?></strong></td>
               <td>
                 <?= $m->next_service_due 
-                  ? '<span class="badge bg-primary">'.h($m->next_service_due->format('d M Y')).'</span>' 
+                  ? '<span class="badge bg-primary text-white">'.h($m->next_service_due->format('d M Y')).'</span>' 
                   : '<span class="text-muted">-</span>' ?>
               </td>
               <td>
