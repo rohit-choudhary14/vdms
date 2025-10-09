@@ -274,7 +274,7 @@ return [
              * It is recommended to set these options through your environment or app_local.php
              */
             'username' => 'postgres',
-            'password' => '1234',
+            'password' => 'wwe',
             'database' => 'VDMS',
             /*
              * You do not need to set this flag to use full utf-8 encoding (internal default since CakePHP 3.6).
