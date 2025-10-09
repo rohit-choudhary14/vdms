@@ -1,125 +1,12 @@
 <?php
-// namespace App\Model\Table;
 
-// use Cake\ORM\Table;
-// use Cake\Validation\Validator;
-
-// class VehiclesTable extends Table
-// {
-//     public function initialize(array $config)
-//     {
-//         parent::initialize($config);
-//         $this->setTable('vehicles');
-//         $this->setPrimaryKey('id');
-//         $this->addBehavior('Timestamp');
-
-//         $this->hasMany('Maintenance', ['foreignKey' => 'vehicle_code']);
-//         $this->hasMany('FuelLogs', ['foreignKey' => 'vehicle_code']);
-//         $this->hasMany('Insurance', ['foreignKey' => 'vehicle_code',
-//                                      'bindingKey' => 'vehicle_code']);
-//         $this->hasMany('DriverAssignments', ['foreignKey' => 'vehicle_code']);
-//     }
-
-//     public function validationDefault(Validator $validator)
-//     {
-//         $validator->requirePresence('registration_no')->notEmpty('registration_no','Registration no is required');
-//         $validator->requirePresence('vehicle_type')->notEmpty('vehicle_type','Vichle type is required');
-//         $validator->requirePresence('fuel_type')->notEmpty('fuel_type','Please select fuel type');
-//         $validator->requirePresence('make_model')->notEmpty('make_model','Manufacturer & Model is required');
-//         $validator->requirePresence('purchase_date')->notEmpty('purchase_date','Purchase date is required');
-//         $validator->requirePresence('purchase_value')->notEmpty('purchase_value','Purchase value is required');
-//         $validator->requirePresence('vendor')->notEmpty('vendor','Please enter vendor name');
-//         $validator->requirePresence('registration_doc')->notEmpty('registration_doc','Registration document is required');
-//         $validator->requirePresence('bill_doc')->notEmpty('bill_doc','Billing document is required');
-//         $validator->requirePresence('photo_front')->notEmpty('photo_front','Vehcile front photo is required');
-//         $validator->requirePresence('photo_back')->notEmpty('photo_back','Vehcile back photo is required');
-       
-//         $validator->allowEmpty('vehicle_code');
-//         $validator->integer('seating_capacity')->notEmpty('seating_capacity');
-        
-//         return $validator;
-//     }
-// } -->
-// namespace App\Model\Table;
-// use Cake\ORM\Table;
-// use Cake\Validation\Validator;
-
-// class VehiclesTable extends Table
-// {
-//     public function initialize(array $config): void
-//     {
-//         parent::initialize($config);
-        
-//         $this->setTable('vehicles');
-//         $this->setPrimaryKey('id');
-        
-//         $this->addBehavior('Timestamp');
-        
-//         // UPDATED ASSOCIATIONS
-//         $this->belongsTo('VehicleTypes', [
-//             'foreignKey' => 'vehicle_type_id',
-//             'joinType' => 'INNER'
-//         ]);
-        
-//         $this->belongsTo('VehicleManufacturers', [
-//             'foreignKey' => 'manufacturer_id', 
-//             'joinType' => 'INNER'
-//         ]);
-        
-//         $this->belongsTo('VehicleModels', [
-//             'foreignKey' => 'model_id',
-//             'joinType' => 'INNER'
-//         ]);
-        
-//         // Keep existing associations
-//         $this->hasMany('Insurance', [
-//             'foreignKey' => 'vehicle_code',
-//             'bindingKey' => 'vehicle_code'
-//         ]);
-//     }
-    
-//     public function validationDefault(Validator $validator): Validator
-//     {
-//         // Add new validations for master table fields
-//         $validator
-//             ->integer('vehicle_type_id')
-//             ->requirePresence('vehicle_type_id', 'create')
-//             ->notEmptyString('vehicle_type_id');
-            
-//         $validator
-//             ->integer('manufacturer_id')
-//             ->requirePresence('manufacturer_id', 'create')
-//             ->notEmptyString('manufacturer_id');
-            
-//         $validator
-//             ->integer('model_id')  
-//             ->requirePresence('model_id', 'create')
-//             ->notEmptyString('model_id');
-            
-//         $validator
-//             ->integer('model_year')
-//             ->requirePresence('model_year', 'create')
-//             ->notEmptyString('model_year')
-//             ->range('model_year', [1990, 2030]);
-            
-//         // Update status validation
-//         $validator
-//             ->scalar('status')
-//             ->requirePresence('status', 'create')
-//             ->notEmptyString('status')
-//             ->inList('status', ['Alloted', 'Unalloted', 'Condemned', 'In-Garage']);
-        
-//         // Keep existing validations...
-        
-//         return $validator;
-//     }
-// }
 
 
 namespace App\Model\Table;
 
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\ORM\RulesChecker; 
 
 class VehiclesTable extends Table
 {
@@ -135,17 +22,20 @@ class VehiclesTable extends Table
         // NEW: Master table associations
         $this->belongsTo('VehicleTypes', [
             'foreignKey' => 'vehicle_type_id',
-            'joinType' => 'LEFT'  // Changed to LEFT in case old records don't have it
+            'joinType' => 'LEFT' ,
+            'propertyName' => 'vehicleTypeAssoc'  // Changed to LEFT in case old records don't have it
         ]);
         
         $this->belongsTo('VehicleManufacturers', [
             'foreignKey' => 'manufacturer_id', 
-            'joinType' => 'LEFT'
+            'joinType' => 'LEFT',
+             'propertyName' => 'manufacturerAssoc' 
         ]);
         
         $this->belongsTo('VehicleModels', [
             'foreignKey' => 'model_id',
-            'joinType' => 'LEFT'
+            'joinType' => 'LEFT',
+            'propertyName' => 'modelAssoc' 
         ]);
         
         // EXISTING ASSOCIATIONS - ADD THESE BACK!
@@ -248,14 +138,86 @@ class VehiclesTable extends Table
             ->maxLength('vendor', 100)
             ->requirePresence('vendor', 'create')
             ->notEmptyString('vendor');
-        
+
+        //new validators for already existed vehicles
+         $validator
+        ->scalar('vehicle_condition')
+        ->requirePresence('vehicle_condition', 'create')
+        ->notEmptyString('vehicle_condition')
+        ->inList('vehicle_condition', ['newly_purchased', 'already_existed']);
+
+    $validator
+        ->integer('odometer_reading')
+        ->allowEmptyString('odometer_reading', null, function ($context) {
+            return empty($context['data']['vehicle_condition']) || 
+                   $context['data']['vehicle_condition'] !== 'already_existed';
+        })
+        ->requirePresence('odometer_reading', function ($context) {
+            return !empty($context['data']['vehicle_condition']) && 
+                   $context['data']['vehicle_condition'] === 'already_existed';
+        });
+
+    $validator
+        ->date('last_service_date')
+        ->allowEmptyDate('last_service_date', null, function ($context) {
+            return empty($context['data']['vehicle_condition']) || 
+                   $context['data']['vehicle_condition'] !== 'already_existed';
+        });
+
+    $validator
+        ->scalar('keys_available')
+        ->allowEmptyString('keys_available', null, function ($context) {
+            return empty($context['data']['vehicle_condition']) || 
+                   $context['data']['vehicle_condition'] !== 'already_existed';
+        })
+        ->inList('keys_available', ['1_key', '2_keys'], 'Invalid key option', 'default', function ($context) {
+            return !empty($context['data']['keys_available']);
+        });
+
+    $validator
+        ->scalar('insurance_policy_no')
+        ->maxLength('insurance_policy_no', 100)
+        ->requirePresence('insurance_policy_no', 'create')
+        ->notEmptyString('insurance_policy_no');
+
+    $validator
+        ->date('insurance_expiry_date')
+        ->requirePresence('insurance_expiry_date', 'create')
+        ->notEmptyDate('insurance_expiry_date');
+
+    
         return $validator;
     }
     
-    public function buildRules(RulesChecker $rules): RulesChecker
-    {
-        $rules->add($rules->isUnique(['registration_no']), ['errorField' => 'registration_no']);
-        
-        return $rules;
-    }
+    /**
+ * Build rules for validation
+ *
+ * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+ * @return \Cake\ORM\RulesChecker
+ */
+public function buildRules(RulesChecker $rules): RulesChecker
+{
+    $rules->add($rules->isUnique(['registration_no']), [
+        'errorField' => 'registration_no',
+        'message' => 'This registration number is already registered.'
+    ]);
+    
+    $rules->add($rules->existsIn(['vehicle_type_id'], 'VehicleTypes'), [
+        'errorField' => 'vehicle_type_id',
+        'message' => 'Please select a valid vehicle type.'
+    ]);
+    
+    $rules->add($rules->existsIn(['manufacturer_id'], 'VehicleManufacturers'), [
+        'errorField' => 'manufacturer_id',
+        'message' => 'Please select a valid manufacturer.'
+    ]);
+    
+    $rules->add($rules->existsIn(['model_id'], 'VehicleModels'), [
+        'errorField' => 'model_id',
+        'message' => 'Please select a valid vehicle model.'
+    ]);
+
+    return $rules;
+}
+
 }
