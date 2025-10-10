@@ -170,27 +170,27 @@ use Psy\Readline\Hoa\Autocompleter;
                 ]
             ]) ?>
         </div>
-        
-<div class="col-md-6">
-    <?= $this->Form->control('addons[]', [
-        'type' => 'select',
-        'label' => 'Select Add-ons Coverage',
-        'options' => [
-            'zero_depreciation' => 'Zero Depreciation Cover',
-            'engine_protection' => 'Engine Protection Cover',
-            'roadside_assistance' => 'Roadside Assistance Cover',
-            'return_to_invoice' => 'Return to Invoice Cover',
-            'key_replacement' => 'Key Replacement Cover',
-            'consumables' => 'Consumables Cover',
-            'ncb_protection' => 'No Claim Bonus Protection',
-            'personal_accident' => 'Personal Accident Cover for Owner-Driver',
-        ],
-        'multiple' => true,
-        'class' => 'form-control select2-multi',  // extra class for JS selector
-        'labelOptions' => ['style' => 'font-weight:bold;'],
-        'empty' => false,
-    ]) ?>
-</div>
+
+        <div class="col-md-6">
+            <?= $this->Form->control('addons[]', [
+                'type' => 'select',
+                'label' => 'Select Add-ons Coverage',
+                'options' => [
+                    'zero_depreciation' => 'Zero Depreciation Cover',
+                    'engine_protection' => 'Engine Protection Cover',
+                    'roadside_assistance' => 'Roadside Assistance Cover',
+                    'return_to_invoice' => 'Return to Invoice Cover',
+                    'key_replacement' => 'Key Replacement Cover',
+                    'consumables' => 'Consumables Cover',
+                    'ncb_protection' => 'No Claim Bonus Protection',
+                    'personal_accident' => 'Personal Accident Cover for Owner-Driver',
+                ],
+                'multiple' => true,
+                'class' => 'form-control select2-multi',  // extra class for JS selector
+                'labelOptions' => ['style' => 'font-weight:bold;'],
+                'empty' => false,
+            ]) ?>
+        </div>
 
 
 
@@ -276,13 +276,13 @@ use Psy\Readline\Hoa\Autocompleter;
 
 <script>
     $(document).ready(function() {
-         $('.select2-multi').select2({
-        placeholder: "Select Add-ons Coverage",
-        closeOnSelect: false,
-        allowClear: true,
-        
-    });
-   
+        $('.select2-multi').select2({
+            placeholder: "Select Add-ons Coverage",
+            closeOnSelect: false,
+            allowClear: true,
+
+        });
+
         $(".browse-btn").on("click", function() {
             let target = $(this).data("target");
             $(target).trigger("click");
@@ -342,11 +342,11 @@ use Psy\Readline\Hoa\Autocompleter;
                 this.value = '';
             }
         });
-         $('.select2').select2({
-        theme: 'bootstrap-5',
-        width: '100%',
-        placeholder: 'Select an option',
-        allowClear: true
-    });
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Select an option',
+            allowClear: true
+        });
     });
 </script>
