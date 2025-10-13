@@ -185,6 +185,7 @@ class VehiclesController extends AppController
         if ($this->request->is('post')) {
             $vehicle = $this->Vehicles->patchEntity($vehicle, $this->request->getData());
             
+            
             // Auto-generate vehicle code if not provided
             if (empty($vehicle->vehicle_code)) {
                 $vehicle->vehicle_code = $this->generateVehicleCode();
