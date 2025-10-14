@@ -18,6 +18,7 @@ class AccidentsController extends AppController
         ]);
         $this->set(compact('accidents'));
     }
+
     public function exportExcel()
     {
         $this->autoRender = false;
@@ -45,7 +46,6 @@ class AccidentsController extends AppController
             $sheet->setCellValue("A{$row}", $accident->accident_id);
             $sheet->setCellValue("B{$row}", !empty($accident->vehicle->registration_no) ? $accident->vehicle->registration_no : $accident->vehicle_id);
             $sheet->setCellValue("C{$row}", !empty($accident->driver->name) ? $accident->driver->name : $accident->driver_id);
-
             $sheet->setCellValue("D{$row}", $accident->date_time->format('d-m-Y H:i'));
             $sheet->setCellValue("E{$row}", $accident->location);
             $sheet->setCellValue("F{$row}", $accident->nature_of_accident);
@@ -69,7 +69,6 @@ class AccidentsController extends AppController
             'contain' => ['Vehicles', 'Drivers']
         ])->toArray();
 
-        // Build HTML
         $html = '<h2>Accident / Incident Report</h2>
         <table border="1" cellspacing="0" cellpadding="5" width="100%">
         <thead>
@@ -82,9 +81,8 @@ class AccidentsController extends AppController
         foreach ($accidents as $a) {
             $html .= '<tr>
             <td>' . $a->accident_id . '</td>
-           <td>' . (!empty($a->vehicle->registration_no) ? $a->vehicle->registration_no : $a->vehicle_id) . '</td>
-<td>' . (!empty($a->driver->name) ? $a->driver->name : $a->driver_id) . '</td>
-
+            <td>' . (!empty($a->vehicle->registration_no) ? $a->vehicle->registration_no : $a->vehicle_id) . '</td>
+            <td>' . (!empty($a->driver->name) ? $a->driver->name : $a->driver_id) . '</td>
             <td>' . $a->date_time->format('d-m-Y H:i') . '</td>
             <td>' . $a->location . '</td>
             <td>' . $a->nature_of_accident . '</td>
@@ -95,7 +93,6 @@ class AccidentsController extends AppController
 
         $html .= '</tbody></table>';
 
-        // Use Dompdf
         $dompdf = new Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'landscape');
@@ -104,6 +101,7 @@ class AccidentsController extends AppController
         $filename = "accident_report_" . date('YmdHis') . ".pdf";
         $dompdf->stream($filename, ["Attachment" => true]);
     }
+
     public function report()
     {
         $this->loadModel('Vehicles');
@@ -113,7 +111,6 @@ class AccidentsController extends AppController
             'contain' => ['Vehicles', 'Drivers']
         ]);
 
-        // Apply filters from request
         $filters = $this->request->getQuery();
 
         if (!empty($filters['vehicle_id'])) {
@@ -141,7 +138,6 @@ class AccidentsController extends AppController
         $this->set(compact('accidents', 'vehicles', 'drivers', 'filters'));
     }
 
-
     public function view($id = null)
     {
         $accident = $this->Accidents->get($id, [
@@ -153,8 +149,36 @@ class AccidentsController extends AppController
     public function add()
     {
         $accident = $this->Accidents->newEntity();
+
         if ($this->request->is('post')) {
-            $accident = $this->Accidents->patchEntity($accident, $this->request->getData());
+            $data = $this->request->getData();
+
+            // Handle FIR checkbox and related fields
+            if (empty($data['is_fir_registered'])) {
+                $data['is_fir_registered'] = false;
+                $data['fir_no'] = null;
+                $data['fir_date'] = null;
+                $data['supporting_docs'] = null;
+            } else {
+                $data['is_fir_registered'] = true;
+
+                if (!empty($data['fir_date'])) {
+                    $date = \DateTime::createFromFormat('d-m-Y', $data['fir_date']);
+                    if ($date) {
+                        $data['fir_date'] = $date->format('Y-m-d');
+                    }
+                }
+
+                $data['supporting_docs'] = $this->handleFirDocumentsUpload($this->request->getData('supporting_docs'));
+                if (!empty($data['supporting_docs'])) {
+                    $data['supporting_docs'] = json_encode($data['supporting_docs']);
+                } else {
+                    $data['supporting_docs'] = null;
+                }
+            }
+
+            $accident = $this->Accidents->patchEntity($accident, $data);
+
             if ($this->Accidents->save($accident)) {
                 $this->Flash->success(__('Accident record has been saved.'));
                 return $this->redirect(['action' => 'index']);
@@ -170,8 +194,36 @@ class AccidentsController extends AppController
     public function edit($id = null)
     {
         $accident = $this->Accidents->get($id);
+
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $accident = $this->Accidents->patchEntity($accident, $this->request->getData());
+            $data = $this->request->getData();
+
+            if (empty($data['is_fir_registered'])) {
+                $data['is_fir_registered'] = false;
+                $data['fir_no'] = null;
+                $data['fir_date'] = null;
+                $data['supporting_docs'] = null;
+            } else {
+                $data['is_fir_registered'] = true;
+
+                if (!empty($data['fir_date'])) {
+                    $date = \DateTime::createFromFormat('d-m-Y', $data['fir_date']);
+                    if ($date) {
+                        $data['fir_date'] = $date->format('Y-m-d');
+                    }
+                }
+
+                $uploadedFiles = $this->request->getData('supporting_docs');
+
+                $existingDocs = json_decode($accident->supporting_docs, true) ?: [];
+                $newDocs = $this->handleFirDocumentsUpload($uploadedFiles);
+
+                $allDocs = array_merge($existingDocs, $newDocs);
+                $data['supporting_docs'] = !empty($allDocs) ? json_encode($allDocs) : null;
+            }
+
+            $accident = $this->Accidents->patchEntity($accident, $data);
+
             if ($this->Accidents->save($accident)) {
                 $this->Flash->success(__('Accident record has been updated.'));
                 return $this->redirect(['action' => 'index']);
@@ -193,7 +245,51 @@ class AccidentsController extends AppController
         } else {
             $this->Flash->error(__('Could not delete accident record.'));
         }
-
         return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Upload and save FIR supporting documents (PDF only).
+     * Supports single or multiple files.
+     * Returns array of saved file names.
+     */
+    private function handleFirDocumentsUpload($uploadedFiles)
+    {
+        $savedFiles = [];
+
+        if (empty($uploadedFiles)) {
+            return $savedFiles;
+        }
+
+        // Multiple files case
+        if (is_array($uploadedFiles) && isset($uploadedFiles[0]['tmp_name'])) {
+            foreach ($uploadedFiles as $file) {
+                if ($file['error'] === UPLOAD_ERR_OK) {
+                    $mime = mime_content_type($file['tmp_name']);
+                    if ($mime === 'application/pdf') {
+                        $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_.]/', '', $file['name']);
+                        $targetPath = WWW_ROOT . 'uploads' . DS . 'fir_docs' . DS . $fileName;
+
+                        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+                            $savedFiles[] = $fileName;
+                        }
+                    }
+                }
+            }
+        }
+        // Single file case
+        elseif (isset($uploadedFiles['tmp_name']) && $uploadedFiles['error'] === UPLOAD_ERR_OK) {
+            $mime = mime_content_type($uploadedFiles['tmp_name']);
+            if ($mime === 'application/pdf') {
+                $fileName = time() . '_' . preg_replace('/[^a-zA-Z0-9_.]/', '', $uploadedFiles['name']);
+                $targetPath = WWW_ROOT . 'uploads' . DS . 'fir_docs' . DS . $fileName;
+
+                if (move_uploaded_file($uploadedFiles['tmp_name'], $targetPath)) {
+                    $savedFiles[] = $fileName;
+                }
+            }
+        }
+
+        return $savedFiles;
     }
 }

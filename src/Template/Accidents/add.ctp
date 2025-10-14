@@ -14,7 +14,8 @@
     <div class="card-body shadow-lg">
         <?= $this->Form->create($accident, [
             'class' => 'row g-4 needs-validation',
-            'novalidate' => true
+            'novalidate' => true,
+            'type' => 'file' // Enable file uploads
         ]) ?>
 
         <!-- Vehicle -->
@@ -69,12 +70,60 @@
             ]) ?>
         </div>
 
-        <!-- FIR No. -->
+        <!-- Insurance Claim Status -->
         <div class="col-md-6 mt-3">
+            <?= $this->Form->control('insurance_claim_status', [
+                'type' => 'select',
+                'label' => 'Insurance Claim Status',
+                'options' => ['Pending' => 'Pending', 'Approved' => 'Approved', 'Rejected' => 'Rejected'],
+                'class' => 'form-control',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- FIR Registered Checkbox -->
+        <div class="col-md-6 mt-3 form-check">
+            <?= $this->Form->control('is_fir_registered', [
+                'type' => 'checkbox',
+                'label' => 'Is FIR Registered?',
+                'class' => 'form-check-input',
+                'id' => 'isFIRRegisteredCheckbox',
+                'templates' => [
+                    'inputContainer' => '<div class="form-check">{{content}}</div>',
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- FIR No -->
+        <div class="col-md-6 mt-3 fir-related" style="display:none;">
             <?= $this->Form->control('fir_no', [
                 'label' => 'FIR No.',
                 'class' => 'form-control',
                 'placeholder' => 'Enter FIR number',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- FIR Date -->
+        <div class="col-md-6 mt-3 fir-related" style="display:none;">
+            <?= $this->Form->control('fir_date', [
+                'type' => 'text',
+                'label' => 'Date of FIR',
+                'class' => 'form-control datetimepicker-fir',
+                'placeholder' => 'Select FIR date',
+                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
+            ]) ?>
+        </div>
+
+        <!-- Supporting Documents -->
+        <div class="col-md-6 mt-3 fir-related" style="display:none;">
+            <?= $this->Form->control('supporting_docs', [
+                'type' => 'file',
+                'label' => 'Supporting Documents (PDF only)',
+                'class' => 'form-control',
+                'multiple' => true,
+                'accept' => 'application/pdf',
                 'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
             ]) ?>
         </div>
@@ -101,17 +150,6 @@
             ]) ?>
         </div>
 
-        <!-- Insurance Claim Status -->
-        <div class="col-md-6 mt-3">
-            <?= $this->Form->control('insurance_claim_status', [
-                'type' => 'select',
-                'label' => 'Insurance Claim Status',
-                'options' => ['Pending' => 'Pending', 'Approved' => 'Approved', 'Rejected' => 'Rejected'],
-                'class' => 'form-control',
-                'templates' => ['error' => '<div class="form-error text-danger">{{content}}</div>']
-            ]) ?>
-        </div>
-
         <!-- Submit -->
         <div class="col-12 text-end mt-4">
             <?= $this->Form->button('<i class="fas fa-save"></i> Save Record', [
@@ -126,10 +164,45 @@
 
 <!-- Flatpickr for datetime -->
 <script>
-flatpickr(".datetimepicker", {
-    enableTime: true,
-    dateFormat: "d-m-Y H:i",
-    allowInput: true
+document.addEventListener('DOMContentLoaded', function() {
+    flatpickr(".datetimepicker", {
+        enableTime: true,
+        dateFormat: "d-m-Y H:i",
+        allowInput: true
+    });
+
+    flatpickr(".datetimepicker-fir", {
+        enableTime: false,
+        dateFormat: "d-m-Y",
+        allowInput: true
+    });
+
+    const firCheckbox = document.getElementById('isFIRRegisteredCheckbox');
+    const firFields = document.querySelectorAll('.fir-related');
+
+    function toggleFIRFields() {
+        if (firCheckbox.checked) {
+            firFields.forEach(field => {
+                field.style.display = 'block';
+                const input = field.querySelector('input, textarea, select');
+                if (input) input.setAttribute('required', 'required');
+            });
+        } else {
+            firFields.forEach(field => {
+                field.style.display = 'none';
+                const input = field.querySelector('input, textarea, select');
+                if (input) {
+                    input.removeAttribute('required');
+                    input.value = '';
+                }
+            });
+        }
+    }
+
+    firCheckbox.addEventListener('change', toggleFIRFields);
+
+    // Initialize fields on page load (for edit or validation errors)
+    toggleFIRFields();
 });
 </script>
 

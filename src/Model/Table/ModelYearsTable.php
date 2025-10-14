@@ -31,7 +31,12 @@ class ModelYearsTable extends Table
             ->integer('model_id')
             ->requirePresence('model_id', 'create')
             ->notEmptyString('model_id');
-            
+           
+        $validator
+            ->integer('Chechis_No')
+            ->requirePresence('Chechis_No', 'create')
+            ->notEmptyString('Chechis_No');
+
         $validator
             ->integer('year')
             ->requirePresence('year', 'create')
