@@ -215,55 +215,51 @@ class VehiclesController extends AppController
     /**
      * Edit method - Update existing vehicle
      */
-    public function edit($id = null)
-    {
-        $vehicle = $this->Vehicles->get($id, [
-            'contain' => [
-                'VehicleTypes',
-                'VehicleManufacturers',
-                'VehicleModels'
-            ]
-        ]);
-        
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $vehicle = $this->Vehicles->patchEntity($vehicle, $this->request->getData());
-            if ($this->Vehicles->save($vehicle)) {
-                $this->Flash->success(__('The vehicle has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The vehicle could not be saved. Please, try again.'));
-        }
-        
-        // Load dropdown data
-        $vehicleTypes = $this->VehicleTypes->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'type_name'
-        ])->toArray();
-        
-        $manufacturers = $this->VehicleManufacturers->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'name'
-        ])->order(['name' => 'ASC'])->toArray();
-        
-        // Load models and years for edit form (pre-populate)
-        $models = [];
-        $years = [];
-        
-        if (!empty($vehicle->manufacturer_id)) {
-            $models = $this->VehicleModels->find('list', [
-                'keyField' => 'id',
-                'valueField' => 'model_name',
-                'conditions' => ['manufacturer_id' => $vehicle->manufacturer_id]
-            ])->order(['model_name' => 'ASC'])->toArray();
-        }
-        
-        if (!empty($vehicle->model_id)) {
-            $years = $this->ModelYears->getAvailableYears($vehicle->model_id);
-            $years = array_combine($years, $years); // Convert to key-value pairs
-        }
+    public function edit($vehicleCode = null)
+{
+    $vehicle = $this->Vehicles->find()
+        ->where(['vehicle_code' => $vehicleCode])
+        ->contain(['VehicleTypes', 'VehicleManufacturers', 'VehicleModels'])
+        ->firstOrFail();
 
-        $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers', 'models', 'years'));
+    if ($this->request->is(['patch', 'post', 'put'])) {
+        $vehicle = $this->Vehicles->patchEntity($vehicle, $this->request->getData());
+        if ($this->Vehicles->save($vehicle)) {
+            $this->Flash->success(__('The vehicle has been saved.'));
+            return $this->redirect(['action' => 'index']);
+        }
+        $this->Flash->error(__('The vehicle could not be saved. Please, try again.'));
     }
+
+    // Load dropdown data as before
+    $vehicleTypes = $this->VehicleTypes->find('list', [
+        'keyField' => 'id',
+        'valueField' => 'type_name'
+    ])->toArray();
+
+    $manufacturers = $this->VehicleManufacturers->find('list', [
+        'keyField' => 'id',
+        'valueField' => 'name'
+    ])->order(['name' => 'ASC'])->toArray();
+
+    $models = [];
+    $years = [];
+
+    if (!empty($vehicle->manufacturer_id)) {
+        $models = $this->VehicleModels->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'model_name',
+            'conditions' => ['manufacturer_id' => $vehicle->manufacturer_id]
+        ])->order(['model_name' => 'ASC'])->toArray();
+    }
+
+    if (!empty($vehicle->model_id)) {
+        $years = $this->ModelYears->getAvailableYears($vehicle->model_id);
+        $years = array_combine($years, $years);
+    }
+
+    $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers', 'models', 'years'));
+}
 
     /**
      * AJAX method - Get models by manufacturer
@@ -339,36 +335,41 @@ class VehiclesController extends AppController
     /**
      * View method
      */
-    public function view($id = null)
-    {
-        $vehicle = $this->Vehicles->get($id, [
-            'contain' => [
-                'VehicleTypes',
-                'VehicleManufacturers',
-                'VehicleModels',
-                'Insurance'
-            ]
-        ]);
+   public function view($vehicleCode = null)
+{
+    $vehicle = $this->Vehicles->find()
+        ->where(['vehicle_code' => $vehicleCode])
+        ->contain([
+            'VehicleTypes',
+            'VehicleManufacturers',
+            'VehicleModels',
+            'Insurance'
+        ])
+        ->firstOrFail();
 
-        $this->set(compact('vehicle'));
-    }
+    $this->set(compact('vehicle'));
+}
+
 
     /**
      * Delete method
      */
-    public function delete($id = null)
-    {
-        $this->request->allowMethod(['post', 'delete']);
-        $vehicle = $this->Vehicles->get($id);
-        if ($this->Vehicles->delete($vehicle)) {
-            $this->Flash->success(__('The vehicle has been deleted.'));
-        } else {
-            $this->Flash->error(__('The vehicle could not be deleted. Please, try again.'));
-        }
+    public function delete($vehicleCode = null)
+{
+    $this->request->allowMethod(['post', 'delete']);
 
-        return $this->redirect(['action' => 'index']);
+    $vehicle = $this->Vehicles->find()
+        ->where(['vehicle_code' => $vehicleCode])
+        ->firstOrFail();
+
+    if ($this->Vehicles->delete($vehicle)) {
+        $this->Flash->success(__('The vehicle has been deleted.'));
+    } else {
+        $this->Flash->error(__('The vehicle could not be deleted. Please, try again.'));
     }
 
+    return $this->redirect(['action' => 'index']);
+}
     /**
      * Generate unique vehicle code
      */

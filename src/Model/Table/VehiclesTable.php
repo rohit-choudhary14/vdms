@@ -123,10 +123,10 @@ class VehiclesTable extends Table
             ->requirePresence('status', 'create')
             ->notEmptyString('status');
         
-        $validator
-            ->date('purchase_date')
-            ->requirePresence('purchase_date', 'create')
-            ->notEmptyDate('purchase_date');
+        // $validator
+        //     ->date('purchase_date')
+        //     ->requirePresence('purchase_date', 'create')
+        //     ->notEmptyDate('purchase_date');
         
         $validator
             ->decimal('purchase_value')
@@ -180,10 +180,10 @@ class VehiclesTable extends Table
         ->requirePresence('insurance_policy_no', 'create')
         ->notEmptyString('insurance_policy_no');
 
-    $validator
-        ->date('insurance_expiry_date')
-        ->requirePresence('insurance_expiry_date', 'create')
-        ->notEmptyDate('insurance_expiry_date');
+    // $validator
+    //     ->date('insurance_expiry_date')
+    //     ->requirePresence('insurance_expiry_date', 'create')
+    //     ->notEmptyDate('insurance_expiry_date');
 
     
         return $validator;
