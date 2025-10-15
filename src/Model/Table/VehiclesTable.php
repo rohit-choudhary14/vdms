@@ -22,7 +22,7 @@ class VehiclesTable extends Table
         // NEW: Master table associations
         $this->belongsTo('VehicleTypes', [
             'foreignKey' => 'vehicle_type_id',
-            'joinType' => 'LEFT' ,
+            'joinType' => 'INNER' ,
             'propertyName' => 'vehicleTypeAssoc'  // Changed to LEFT in case old records don't have it
         ]);
         
@@ -46,7 +46,7 @@ class VehiclesTable extends Table
         
         // ADD THIS - DriverAssignments association
         $this->hasMany('DriverAssignments', [
-            'foreignKey' => 'vehicle_id',  // Or 'vehicle_code' if that's the key
+            'foreignKey' => 'vehicle_code',  // Or 'vehicle_code' if that's the key
             'dependent' => true
         ]);
         
