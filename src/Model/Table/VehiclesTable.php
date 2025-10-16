@@ -23,7 +23,7 @@ class VehiclesTable extends Table
         $this->belongsTo('VehicleTypes', [
             'foreignKey' => 'vehicle_type_id',
             'joinType' => 'INNER' ,
-            'propertyName' => 'vehicleTypeAssoc'  // Changed to LEFT in case old records don't have it
+            // 'propertyName' => 'vehicleTypeAssoc'  // Changed to LEFT in case old records don't have it
         ]);
         
         $this->belongsTo('VehicleManufacturers', [

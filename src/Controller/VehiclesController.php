@@ -209,7 +209,7 @@ class VehiclesController extends AppController
             'valueField' => 'name'
         ])->order(['name' => 'ASC'])->toArray();
 
-        $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers','type_name'));
+        $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers','type_name','year'));
     }
 
     /**

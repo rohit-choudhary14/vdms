@@ -47,7 +47,7 @@
               <td class="fw-semibold"><?= $v->id ?></td>
               <td><?= h($v->vehicle_code) ?></td>
               <td><?= h($v->registration_no) ?></td>
-              <td><?= h($v->vehicle_type->type_name ?? '') ?></td>
+              <td><?= h($v->vehicle_type->type_name) ?></td>
 
               <td><?= h($v->fuel_type) ?></td>
               <td>
