@@ -22,7 +22,7 @@ class VehiclesTable extends Table
         // NEW: Master table associations
         $this->belongsTo('VehicleTypes', [
             'foreignKey' => 'vehicle_type_id',
-            'joinType' => 'INNER' ,
+            'joinType' => 'LEFT' ,
             // 'propertyName' => 'vehicleTypeAssoc'  // Changed to LEFT in case old records don't have it
         ]);
         

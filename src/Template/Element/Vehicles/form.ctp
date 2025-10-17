@@ -374,9 +374,9 @@
           'placeholder' => 'DD-MM-YYYY',
           'autocomplete' => 'off',
           'required' => true,
-          'value' => !empty($vehicle->purchase_date)
-            ? $vehicle->purchase_date->format('d-m-Y')
-            : '',
+          'value' => !empty($vehicle->insurance_expiry_date) 
+    ? (new \DateTime($vehicle->insurance_expiry_date))->format('d-m-Y') 
+    : '',
           'templates' => [
             'error' => '<div class="form-error">{{content}}</div>'
           ]
@@ -433,9 +433,9 @@
           'placeholder' => 'DD-MM-YYYY',
           'autocomplete' => 'off',
           'required' => true,
-          'value' => !empty($vehicle->insurance_expiry_date)
-            ? $vehicle->insurance_expiry_date->format('d-m-Y')
-            : '',
+        'value' => !empty($vehicle->insurance_expiry_date) 
+    ? (new \DateTime($vehicle->insurance_expiry_date))->format('d-m-Y') 
+    : '',
           'templates' => [
             'error' => '<div class="form-error">{{content}}</div>'
           ]
@@ -470,9 +470,9 @@
                 'type' => 'text',
                 'placeholder' => 'DD-MM-YYYY',
                 'autocomplete' => 'off',
-                'value' => !empty($vehicle->last_service_date)
-                  ? $vehicle->last_service_date->format('d-m-Y')
-                  : '',
+                'value' => !empty($vehicle->insurance_expiry_date) 
+    ? (new \DateTime($vehicle->insurance_expiry_date))->format('d-m-Y') 
+    : '',
                 'templates' => [
                   'error' => '<div class="form-error">{{content}}</div>'
                 ]

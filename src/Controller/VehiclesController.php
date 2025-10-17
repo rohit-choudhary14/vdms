@@ -190,7 +190,17 @@ class VehiclesController extends AppController
             if (empty($vehicle->vehicle_code)) {
                 $vehicle->vehicle_code = $this->generateVehicleCode();
             }
-            
+            $uploads = ['registration_doc', 'bill_doc', 'photo_front', 'photo_back'];
+            foreach ($uploads as $field) {
+                if (!empty($this->request->getData($field)['name'])) {
+                    $file = $this->request->getData($field);
+                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    $name = uniqid() . '_' . time() . '.' . $ext;
+                    $target = WWW_ROOT . 'img' . DS . 'uploads' . DS . $name;
+                    move_uploaded_file($file['tmp_name'], $target);
+                    $data[$field] = 'uploads/' . $name;
+                }
+            }
             if ($this->Vehicles->save($vehicle)) {
                 $this->Flash->success(__('The vehicle has been saved.'));
                 return $this->redirect(['action' => 'index']);
@@ -209,7 +219,7 @@ class VehiclesController extends AppController
             'valueField' => 'name'
         ])->order(['name' => 'ASC'])->toArray();
 
-        $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers','type_name','year'));
+        $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers'));
     }
 
     /**
