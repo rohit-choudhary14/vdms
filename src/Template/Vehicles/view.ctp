@@ -38,7 +38,7 @@
                 </tr>
                 <tr>
                   <th scope="row">Model</th>
-                  <td><?= h($vehicle->model_years->year) ?></td>
+                  <td><?= h($vehicle->model_year) ?></td>
                 </tr>
                 <tr>
                   <th scope="row">Seating Capacity</th>

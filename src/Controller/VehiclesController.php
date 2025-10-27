@@ -356,7 +356,6 @@ class VehiclesController extends AppController
             'Insurance'
         ])
         ->firstOrFail();
-
     $this->set(compact('vehicle'));
 }
 
