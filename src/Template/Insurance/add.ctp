@@ -62,9 +62,51 @@ use Psy\Readline\Hoa\Autocompleter;
                 ]
             ]) ?>
         </div>
+        <!-- Insurance Company Dropdown -->
+        <div class="col-md-6">
+            <?= $this->Form->control('insurance_company_id', [
+                'label' => 'Insurance Company',
+                'options' => $insuranceCompanies,
+                'class' => 'form-select form-control select2',
+                'empty' => 'Select Insurance Company',
+                'required' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Auto-filled Contact -->
+        <div class="col-md-6">
+            <?= $this->Form->control('insurer_contact', [
+                'label' => 'Contact Number',
+                'type' => 'text',
+                'readonly' => true,
+                'class' => 'form-control',
+                'placeholder' => 'Auto-filled contact number',
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Auto-filled Address -->
+        <div class="col-md-6">
+            <?= $this->Form->control('insurer_address', [
+                'label' => 'Address',
+                'type' => 'textarea',
+                'readonly' => true,
+                'rows' => 2,
+                'class' => 'form-control',
+                'placeholder' => 'Auto-filled address',
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
 
         <!-- Insurer -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
             <?= $this->Form->control('insurer_name', [
                 'label' => 'Insurer Name',
                 'class' => 'form-control',
@@ -74,10 +116,10 @@ use Psy\Readline\Hoa\Autocompleter;
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
-        </div>
+        </div>  -->
 
         <!-- Contact & Address -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
             <?= $this->Form->control('insurer_contact', [
                 'label' => 'Insurer Contact',
                 'type' => 'tel',
@@ -91,9 +133,9 @@ use Psy\Readline\Hoa\Autocompleter;
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
-        </div>
+        </div> -->
 
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
             <?= $this->Form->control('insurer_address', [
                 'label' => 'Insurer Address',
                 'type' => 'textarea',
@@ -104,7 +146,7 @@ use Psy\Readline\Hoa\Autocompleter;
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
-        </div>
+        </div> -->
 
         <!-- Dates -->
         <div class="col-md-6">
@@ -128,6 +170,7 @@ use Psy\Readline\Hoa\Autocompleter;
         </div>
         <div class="col-md-6">
             <?= $this->Form->control('expiry_date', [
+                'id' => 'expiry-date',
                 'label' => 'Expiry Date',
                 'type' => 'text',
                 'class' => 'form-control datepicker',
@@ -142,19 +185,27 @@ use Psy\Readline\Hoa\Autocompleter;
             ]) ?>
         </div>
         <div class="col-md-6">
+
             <?= $this->Form->control('next_due', [
-                'label' => 'Next Insurance Due',
+                'id' => 'next-due',
+                'label' => 'Next Insurance Due Date',
                 'type' => 'text',
-                'class' => 'form-control datepicker',
-                'placeholder' => 'Select due date',
-                'autocomplete' => 'off',
-                'value' => !empty($insurance->next_due)
-                    ? $insurance->next_due->format('d/m/Y')
-                    : '',
-                'templates' => [
-                    'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]
+                'class' => 'form-control',
+                'readonly' => true
             ]) ?>
+            <!-- <?= $this->Form->control('next_due', [
+                        'label' => 'Next Insurance Due',
+                        'type' => 'text',
+                        'class' => 'form-control datepicker',
+                        'placeholder' => 'Select due date',
+                        'autocomplete' => 'off',
+                        'value' => !empty($insurance->next_due)
+                            ? $insurance->next_due->format('d/m/Y')
+                            : '',
+                        'templates' => [
+                            'error' => '<div class="form-error text-danger">{{content}}</div>'
+                        ]
+                    ]) ?> -->
         </div>
 
 
@@ -202,15 +253,22 @@ use Psy\Readline\Hoa\Autocompleter;
 
         <div class="col-md-6">
             <?= $this->Form->control('status', [
-                'options' => ['Active' => 'Active', 'Expired' => 'Expired', 'Renewed' => 'Renewed'],
+                'options' => [
+                    'Active' => 'Active',
+                    'Expired' => 'Expired',
+                    'Renewed' => 'Renewed'
+                ],
                 'label' => 'Status',
+                'id' => 'status',
                 'class' => 'form-select form-control',
                 'empty' => 'Select Status',
+                'disabled' => true,
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
         </div>
+
         <!-- File Upload -->
         <div class="col-md-6 mt-5">
             <div class="card shadow-sm border-0 h-100 upload-zone text-center p-3">
@@ -303,28 +361,7 @@ use Psy\Readline\Hoa\Autocompleter;
             $(input).trigger("change");
         });
 
-        function previewFile(input, previewId) {
-            let file = input.files[0];
-            if (!file) return;
 
-            let reader = new FileReader();
-            reader.onload = (e) => {
-                if (file.type.startsWith("image/")) {
-                    $(`#${previewId}`).html(
-                        `<img src="${e.target.result}" class="img-thumbnail shadow-sm" style="max-height:120px;">`
-                    );
-                } else {
-                    $(`#${previewId}`).html(
-                        `<span class="badge bg-secondary">${file.name}</span>`
-                    );
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        $("#insurance_doc").on("change", function() {
-            previewFile(this, "preview_insurance_doc");
-        });
 
         flatpickr(".datepicker", {
             dateFormat: "d-m-y",
@@ -347,6 +384,131 @@ use Psy\Readline\Hoa\Autocompleter;
             width: '100%',
             placeholder: 'Select an option',
             allowClear: true
+        });
+    });
+    $('#expiry-date').on('change', function() {
+        const expiryDate = $(this).val();
+        if (!expiryDate) return;
+
+        // Expect format dd-mm-yy or dd-mm-yyyy
+        const parts = expiryDate.split('-');
+        if (parts.length !== 3) return;
+
+        let day = parseInt(parts[0], 10);
+        let month = parseInt(parts[1], 10) - 1; // JS months are 0-based
+        let year = parseInt(parts[2], 10);
+
+        // ✅ Fix 2-digit year issue
+        if (year < 100) {
+            year += 2000;
+        }
+
+        const expiryFullDate = new Date(year, month, day);
+
+        // ---- Next Day for next_due ----
+        const nextDay = new Date(expiryFullDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        const nextDue = `${String(nextDay.getDate()).padStart(2, '0')}-${String(nextDay.getMonth() + 1).padStart(2, '0')}-${String(nextDay.getFullYear()).slice(-2)}`;
+        $('#next-due').val(nextDue);
+
+        // ---- Compare for status ----
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // normalize time
+        expiryFullDate.setHours(0, 0, 0, 0);
+
+        if (expiryFullDate >= today) {
+            $('#status').val('Active'); // future or today
+        } else {
+            $('#status').val('Expired'); // past
+        }
+    });
+    $("#insurance_doc").on("change", function() {
+        const input = this;
+        const file = input.files[0];
+        const previewId = "preview_insurance_doc";
+        if (!file) return;
+
+        // Step 1: File size validation (5 MB limit)
+        const maxSize = 5 * 1024 * 1024; // 5 MB
+        if (file.size > maxSize) {
+            alert("File too large! Maximum size allowed is 5 MB.");
+            resetFileInput(input, previewId);
+            return;
+        }
+
+        // Step 2: Basic MIME and extension check
+        const isPdfType = file.type === "application/pdf";
+        const isPdfExtension = file.name.toLowerCase().endsWith(".pdf");
+
+        if (!isPdfType || !isPdfExtension) {
+            alert("Only valid PDF files are allowed!");
+            resetFileInput(input, previewId);
+            return;
+        }
+
+        // Step 3: Validate PDF header (%PDF-)
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const bytes = new Uint8Array(e.target.result).subarray(0, 5);
+            const header = Array.from(bytes)
+                .map(b => b.toString(16).padStart(2, "0"))
+                .join("");
+
+            if (header !== "255044462d") {
+                alert("Invalid or corrupted PDF file!");
+                resetFileInput(input, previewId);
+                return;
+            }
+            showFileLink(file, previewId);
+        };
+
+        reader.onerror = function() {
+            alert("Error reading file. Please try again.");
+            resetFileInput(input, previewId);
+        };
+
+        reader.readAsArrayBuffer(file);
+    });
+    function resetFileInput(input, previewId) {
+        input.value = "";
+        $(`#${previewId}`).html('<span class="text-muted">No file chosen</span>');
+    }
+
+    function showFileLink(file, previewId) {
+        const fileURL = URL.createObjectURL(file);
+        $(`#${previewId}`).html(`
+        <a href="${fileURL}" target="_blank" class="btn btn-sm btn-primary">
+            <i class="fa fa-file-pdf-o"></i>${file.name}
+        </a>
+    `);
+    }
+
+
+    $('#insurance-company-id').on('change', function() {
+        const companyId = $(this).val();
+        if (!companyId) {
+            $('textarea[name="insurer_address"]').val('');
+            $('input[name="insurer_contact"]').val('');
+            return;
+        }
+
+        $.ajax({
+            url: '<?= $this->Url->build(["controller" => "InsuranceCompanies", "action" => "getDetails"]); ?>/' + companyId,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('input[name="insurer_contact"]').val(response.data.contact_number);
+                    $('textarea[name="insurer_address"]').val(response.data.address);
+                } else {
+                    $('input[name="insurer_contact"]').val('');
+                    $('textarea[name="insurer_address"]').val('');
+                }
+            },
+            error: function() {
+                console.error("Error fetching company details");
+            }
         });
     });
 </script>
