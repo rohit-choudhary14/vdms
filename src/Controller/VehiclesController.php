@@ -176,51 +176,164 @@ class VehiclesController extends AppController
     }
 
     /**
-     * Add method - Create new vehicle  
-     */
-    public function add()
-    {
-        $vehicle = $this->Vehicles->newEntity();
+    * Add method - Create new vehicle  
+      */
+    // public function add()
+    // {
+    //     $vehicle = $this->Vehicles->newEntity();
         
-        if ($this->request->is('post')) {
-            $vehicle = $this->Vehicles->patchEntity($vehicle, $this->request->getData());
+    //     if ($this->request->is('post')) {
+    //         $vehicle = $this->Vehicles->patchEntity($vehicle, $this->request->getData());
             
             
-            // Auto-generate vehicle code if not provided
-            if (empty($vehicle->vehicle_code)) {
-                $vehicle->vehicle_code = $this->generateVehicleCode();
-            }
-            $uploads = ['registration_doc', 'bill_doc', 'photo_front', 'photo_back'];
-            foreach ($uploads as $field) {
-                if (!empty($this->request->getData($field)['name'])) {
-                    $file = $this->request->getData($field);
-                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-                    $name = uniqid() . '_' . time() . '.' . $ext;
-                    $target = WWW_ROOT . 'img' . DS . 'uploads' . DS . $name;
-                    move_uploaded_file($file['tmp_name'], $target);
-                    $data[$field] = 'uploads/' . $name;
-                }
-            }
-            if ($this->Vehicles->save($vehicle)) {
-                $this->Flash->success(__('The vehicle has been saved.'));
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The vehicle could not be saved. Please, try again.'));
+    //         // Auto-generate vehicle code if not provided
+    //         if (empty($vehicle->vehicle_code)) {
+    //             $vehicle->vehicle_code = $this->generateVehicleCode();
+    //         }
+    //         $uploads = ['registration_doc', 'bill_doc', 'photo_front', 'photo_back'];
+    //         foreach ($uploads as $field) {
+    //             if (!empty($this->request->getData($field)['name'])) {
+    //                 $file = $this->request->getData($field);
+    //                 $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    //                 $name = uniqid() . '_' . time() . '.' . $ext;
+    //                 $target = WWW_ROOT . 'img' . DS . 'uploads' . DS . $name;
+    //                 move_uploaded_file($file['tmp_name'], $target);
+    //                 $data[$field] = 'uploads/' . $name;
+    //             }
+    //         }
+    //         if ($this->Vehicles->save($vehicle)) {
+    //             $this->Flash->success(__('The vehicle has been saved.'));
+    //             return $this->redirect(['action' => 'index']);
+    //         }
+    //         $this->Flash->error(__('The vehicle could not be saved. Please, try again.'));
+    //     }
+        
+    //     // Load dropdown data for form
+    //     $vehicleTypes = $this->VehicleTypes->find('list', [
+    //         'keyField' => 'id',
+    //         'valueField' => 'type_name'
+    //     ])->toArray();
+        
+    //     $manufacturers = $this->VehicleManufacturers->find('list', [
+    //         'keyField' => 'id', 
+    //         'valueField' => 'name'
+    //     ])->order(['name' => 'ASC'])->toArray();
+
+    //     $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers'));
+    // }
+    /**
+ * Add method - Create new vehicle  
+ */
+public function add()
+{
+    $vehicle = $this->Vehicles->newEntity();
+    
+    if ($this->request->is('post')) {
+        // Get form data
+        $data = $this->request->getData();
+        
+        // Convert date formats from DD-MM-YYYY to YYYY-MM-DD
+        if (!empty($data['purchase_date'])) {
+            $data['purchase_date'] = $this->convertDateFormat($data['purchase_date']);
         }
         
-        // Load dropdown data for form
-        $vehicleTypes = $this->VehicleTypes->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'type_name'
-        ])->toArray();
+        if (!empty($data['insurance_expiry_date'])) {
+            $data['insurance_expiry_date'] = $this->convertDateFormat($data['insurance_expiry_date']);
+        }
         
-        $manufacturers = $this->VehicleManufacturers->find('list', [
-            'keyField' => 'id', 
-            'valueField' => 'name'
-        ])->order(['name' => 'ASC'])->toArray();
-
-        $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers'));
+        if (!empty($data['last_service_date'])) {
+            $data['last_service_date'] = $this->convertDateFormat($data['last_service_date']);
+        }
+        
+        // Auto-generate vehicle code if not provided
+        if (empty($data['vehicle_code'])) {
+            $data['vehicle_code'] = $this->generateVehicleCode();
+        }
+        
+        // Handle file uploads for common documents
+        $uploads = ['registration_doc', 'bill_doc', 'photo_front', 'photo_back'];
+        
+        // Add condition photos if vehicle is already existed
+        if (!empty($data['vehicle_condition']) && $data['vehicle_condition'] === 'already_existed') {
+            $uploads = array_merge($uploads, [
+                'condition_photo_front_left',
+                'condition_photo_front_right', 
+                'condition_photo_back_left',
+                'condition_photo_back_right'
+            ]);
+        }
+        
+        foreach ($uploads as $field) {
+            if (!empty($this->request->getData($field)['name'])) {
+                $file = $this->request->getData($field);
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $name = uniqid() . '_' . time() . '.' . $ext;
+                
+                // Create uploads directory if it doesn't exist
+                $uploadDir = WWW_ROOT . 'img' . DS . 'uploads';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $target = $uploadDir . DS . $name;
+                
+                if (move_uploaded_file($file['tmp_name'], $target)) {
+                    $data[$field] = 'uploads/' . $name;
+                } else {
+                    $this->Flash->error(__('Failed to upload ' . $field . '. Please try again.'));
+                }
+            }
+        }
+        
+        // Patch entity with processed data
+        $vehicle = $this->Vehicles->patchEntity($vehicle, $data);
+        
+        if ($this->Vehicles->save($vehicle)) {
+            $this->Flash->success(__('The vehicle has been saved.'));
+            return $this->redirect(['action' => 'index']);
+        }
+        
+        $this->Flash->error(__('The vehicle could not be saved. Please, try again.'));
+        
+        // Debug validation errors (remove in production)
+        if ($vehicle->getErrors()) {
+            $this->log($vehicle->getErrors(), 'debug');
+        }
     }
+    
+    // Load dropdown data for form
+    $vehicleTypes = $this->Vehicles->VehicleTypes->find('list', [
+        'keyField' => 'id',
+        'valueField' => 'type_name'
+    ])->toArray();
+    
+    $manufacturers = $this->Vehicles->VehicleManufacturers->find('list', [
+        'keyField' => 'id', 
+        'valueField' => 'name'
+    ])->order(['name' => 'ASC'])->toArray();
+
+    $this->set(compact('vehicle', 'vehicleTypes', 'manufacturers'));
+}
+
+/**
+ * Helper method to convert date format from DD-MM-YYYY to YYYY-MM-DD
+ */
+private function convertDateFormat($dateString)
+{
+    if (empty($dateString)) {
+        return null;
+    }
+    
+    try {
+        // Convert from DD-MM-YYYY to YYYY-MM-DD
+        $date = \DateTime::createFromFormat('d-m-Y', $dateString);
+        return $date ? $date->format('Y-m-d') : null;
+    } catch (\Exception $e) {
+        $this->log('Date conversion error: ' . $e->getMessage(), 'error');
+        return null;
+    }
+}
+
 
     /**
      * Edit method - Update existing vehicle

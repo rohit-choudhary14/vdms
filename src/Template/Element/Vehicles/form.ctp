@@ -470,8 +470,8 @@
                 'type' => 'text',
                 'placeholder' => 'DD-MM-YYYY',
                 'autocomplete' => 'off',
-                'value' => !empty($vehicle->insurance_expiry_date) 
-    ? (new \DateTime($vehicle->insurance_expiry_date))->format('d-m-Y') 
+                'value' => !empty($vehicle->last_service_date) 
+    ? (new \DateTime($vehicle->last_service_date))->format('d-m-Y') 
     : '',
                 'templates' => [
                   'error' => '<div class="form-error">{{content}}</div>'
