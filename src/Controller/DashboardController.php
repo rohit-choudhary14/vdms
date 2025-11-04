@@ -54,7 +54,7 @@ class DashboardController extends AppController
             ->select([
                 // 'Vehicles.vehicle_id',
                 'Vehicles.vehicle_code',
-                'Vehicles.vehicle_type',
+                'Vehicles.vehicle_type_id',
                 'Vehicles.fuel_type',
                 'Vehicles.status',
                 'Vehicles.modified'
