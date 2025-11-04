@@ -211,7 +211,7 @@
     $(document).ready(function () {
 
         flatpickr(".datepicker", {
-            dateFormat: "Y-m-d",
+            dateFormat: "d-m-Y",
             allowInput: true
         });
     });

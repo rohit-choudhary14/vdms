@@ -30,15 +30,15 @@
                 </tr>
                 <tr>
                   <th scope="row">Type</th>
-                  <td><?= h($vehicle->vehicle_type) ?></td>
+                  <td><?= h($vehicle->vehicle_type->type_name) ?></td>
                 </tr>
                 <tr>
                   <th scope="row">Fuel</th>
                   <td><?= h($vehicle->fuel_type) ?></td>
                 </tr>
                 <tr>
-                  <th scope="row">Make/Model</th>
-                  <td><?= h($vehicle->make_model) ?></td>
+                  <th scope="row">Model</th>
+                  <td><?= h($vehicle->model_year) ?></td>
                 </tr>
                 <tr>
                   <th scope="row">Seating Capacity</th>

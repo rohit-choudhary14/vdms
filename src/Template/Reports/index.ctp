@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <script>
     flatpickr(".datepicker", {
-        dateFormat: "Y-m-d",
+        dateFormat: "d-m-Y",
         allowInput: true
     });
 </script>
