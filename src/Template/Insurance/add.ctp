@@ -42,8 +42,7 @@ use Psy\Readline\Hoa\Autocompleter;
             <?= $this->Form->control('policy_no', [
                 'label' => 'Policy Number',
                 'class' => 'form-control',
-                'placeholder' => 'Enter policy number',
-                'required' => true,
+                 'readonly' => true,
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
@@ -573,6 +572,32 @@ use Psy\Readline\Hoa\Autocompleter;
                     $('input[name="insurer_contact"]').val('');
                     $('textarea[name="insurer_address"]').val('');
                 }
+            },
+            error: function() {
+                console.error("Error fetching company details");
+            }
+        });
+    });
+
+      $('#vehicle-code').on('change', function() {
+        const vehical_code = $(this).val();
+        if (!vehical_code) {
+            $('textarea[name="policy_no"]').val('');
+            return;
+        }
+
+        $.ajax({
+            url: '<?= $this->Url->build(["controller" => "Insurance", "action" => "getVehicleDetails"]); ?>/' + vehical_code,
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('input[name="policy_no"]').val(response.data.insurance_policy_no);
+                }
+                //  else {
+                //     $('input[name="insurer_contact"]').val('');
+                //     $('textarea[name="insurer_address"]').val('');
+                // }
             },
             error: function() {
                 console.error("Error fetching company details");
