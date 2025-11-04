@@ -25,6 +25,7 @@ use Psy\Readline\Hoa\Autocompleter;
         <!-- Vehicle Registration -->
         <div class="col-md-6">
             <?= $this->Form->control('vehicle_code', [
+                'id' => 'vehicle-code',
                 'options' => $vehicles,
                 'label' => 'Vehicle Registration Number',
                 'class' => 'form-select form-control select2',
@@ -52,6 +53,7 @@ use Psy\Readline\Hoa\Autocompleter;
         <!-- Nature -->
         <div class="col-md-6">
             <?= $this->Form->control('nature', [
+                'id' => "nature",
                 'options' => ['Comprehensive' => 'Comprehensive', 'Third Party' => 'Third Party', 'Comprehensive + Third Party ' => 'Comprehensive+Third Party'],
                 'class' => 'form-select form-control',
                 'label' => 'Policy Nature',
@@ -60,6 +62,14 @@ use Psy\Readline\Hoa\Autocompleter;
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
+            ]) ?>
+        </div>
+        <div class="col-md-6" id="idv-container">
+            <?= $this->Form->control('idv', [
+                'label' => 'IDV (Auto Calculated)',
+                'class' => 'form-control',
+                'readonly' => true,
+                'placeholder' => 'Auto Calculated'
             ]) ?>
         </div>
         <!-- Insurance Company Dropdown -->
@@ -156,9 +166,7 @@ use Psy\Readline\Hoa\Autocompleter;
                 'class' => 'form-control datepicker',
                 'placeholder' => 'Select start date',
                 'autocomplete' => 'off',
-                'value' => !empty($insurance->start_date)
-                    ? $insurance->start_date->format('Y-m-d')
-                    : '',
+                'value' => $insurance->start_date ?? '',
 
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
@@ -175,9 +183,7 @@ use Psy\Readline\Hoa\Autocompleter;
                 'type' => 'text',
                 'class' => 'form-control datepicker',
                 'placeholder' => 'Select expiry date',
-                'value' => !empty($insurance->expiry_date)
-                    ? $insurance->expiry_date->format('Y-m-d')
-                    : '',
+                'value' => $insurance->expiry_date ?? '',
                 'autocomplete' => 'off',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
@@ -191,21 +197,11 @@ use Psy\Readline\Hoa\Autocompleter;
                 'label' => 'Next Insurance Due Date',
                 'type' => 'text',
                 'class' => 'form-control',
+                 'value' => $insurance->next_due ?? '',
+                
                 'readonly' => true
             ]) ?>
-            <!-- <?= $this->Form->control('next_due', [
-                        'label' => 'Next Insurance Due',
-                        'type' => 'text',
-                        'class' => 'form-control datepicker',
-                        'placeholder' => 'Select due date',
-                        'autocomplete' => 'off',
-                        'value' => !empty($insurance->next_due)
-                            ? $insurance->next_due->format('d/m/Y')
-                            : '',
-                        'templates' => [
-                            'error' => '<div class="form-error text-danger">{{content}}</div>'
-                        ]
-                    ]) ?> -->
+          
         </div>
 
 
@@ -242,14 +238,6 @@ use Psy\Readline\Hoa\Autocompleter;
                 'empty' => false,
             ]) ?>
         </div>
-
-
-
-
-
-
-
-
 
         <div class="col-md-6">
             <?= $this->Form->control('status', [
@@ -386,6 +374,38 @@ use Psy\Readline\Hoa\Autocompleter;
             allowClear: true
         });
     });
+    // ---- Date Validation + Auto Status + Next Due ----
+    function updateDates() {
+        const startVal = $('input[name="start_date"]').val();
+        const expiryVal = $('#expiry-date').val();
+        const nextDue = $('#next-due');
+        const status = $('#status');
+
+        if (!startVal || !expiryVal) return;
+
+        let startDate = new Date(startVal);
+        let expiryDate = new Date(expiryVal);
+        let today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (expiryDate < startDate) {
+            alert("Expiry Date must be greater than or equal to Start Date!");
+            $('#expiry-date').val('');
+            nextDue.val('');
+            status.val('');
+            return;
+        }
+
+        let nextDay = new Date(expiryDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        let dd = String(nextDay.getDate()).padStart(2, '0');
+        let mm = String(nextDay.getMonth() + 1).padStart(2, '0');
+        let yyyy = nextDay.getFullYear();
+        nextDue.val(`${dd}-${mm}-${yyyy}`);
+        status.val(expiryDate >= today ? 'Active' : 'Expired');
+    }
+
+    $('#expiry-date, input[name="start_date"]').on('change', updateDates);
     $('#expiry-date').on('change', function() {
         const expiryDate = $(this).val();
         if (!expiryDate) return;
@@ -423,6 +443,57 @@ use Psy\Readline\Hoa\Autocompleter;
             $('#status').val('Expired'); // past
         }
     });
+    $('input[name="policy_no"]').on('input', function() {
+        let value = $(this).val().toUpperCase();
+        value = value.replace(/[^A-Z0-9/-]/g, '');
+        $(this).val(value);
+        if (value.length < 8 || value.length > 20) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+    $('input[name="premium_amount"]').on('input', function() {
+        let value = parseFloat($(this).val());
+
+        // Remove invalid characters (Keep only numbers & decimal)
+        $(this).val($(this).val().replace(/[^0-9.]/g, ''));
+
+        if (isNaN(value) || value <= 0) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+    });
+    function updatePolicyNature() {
+        const policyType = $('#nature').val();
+        const addonsField = $('#addons'); // ✅ Correct selector
+        const addonsWrapper = addonsField.closest('.col-md-6'); // ✅ Hide the whole field block
+        const renewalAlert = $('input[name="renewal_alert"]');
+
+        if (policyType === "Third Party") {
+            addonsWrapper.hide();
+            addonsField.val(null).trigger('change.select2');
+
+            renewalAlert.prop('checked', false).prop('disabled', true);
+
+            $('#nature').css({
+                "background-color": "#fff3cd",
+                "border": "2px solid #ffc107"
+            });
+
+        } else {
+            addonsWrapper.show();
+            renewalAlert.prop('disabled', false);
+
+            $('#nature').css({
+                "background-color": "#ffd3cdff",
+                "border": "2px solid #ff4107ff"
+            });
+        }
+    }
+    $('#nature').on('change', updatePolicyNature);
+    updatePolicyNature();
     $("#insurance_doc").on("change", function() {
         const input = this;
         const file = input.files[0];
@@ -474,7 +545,6 @@ use Psy\Readline\Hoa\Autocompleter;
         input.value = "";
         $(`#${previewId}`).html('<span class="text-muted">No file chosen</span>');
     }
-
     function showFileLink(file, previewId) {
         const fileURL = URL.createObjectURL(file);
         $(`#${previewId}`).html(`
@@ -483,8 +553,6 @@ use Psy\Readline\Hoa\Autocompleter;
         </a>
     `);
     }
-
-
     $('#insurance-company-id').on('change', function() {
         const companyId = $(this).val();
         if (!companyId) {

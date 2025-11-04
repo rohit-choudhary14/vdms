@@ -34,13 +34,15 @@ class InsuranceTable extends Table
             ->notEmptyString('policy_no', 'Policy no required')
             ->notEmptyString('vehicle_id', 'Please select vehicle id')
             ->notEmptyString('nature', 'Please select nature of policy')
+            ->notEmpty('vehicle_code', 'Please select an vechical')
             ->notEmpty('insurance_company_id', 'Please select an insurance company')
             ->notEmptyFile('document', 'Please upload insurance document')
             ->notEmptyDate('start_date', 'Insurance start date is required')
             ->notEmptyDate('expiry_date', 'Insurance end date is required')
             ->notEmptyDate('next_due', 'Insurance next due date is required')
-            ->numeric('premium_amount')
-            ->notEmpty('premium_amount', 'Premium amount is required');
+         
+            ->greaterThan('premium_amount', 0, 'Premium amount must be greater than 0.');
+
 
         return $validator;
     }
