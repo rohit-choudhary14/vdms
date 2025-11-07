@@ -36,19 +36,74 @@ use Psy\Readline\Hoa\Autocompleter;
                 ]
             ]) ?>
         </div>
-
-        <!-- Policy No -->
+        <!-- engine no  -->
         <div class="col-md-6">
-            <?= $this->Form->control('policy_no', [
-                'label' => 'Policy Number',
+            <?= $this->Form->control('engine_no', [
+                'label' => 'Engine No',
                 'class' => 'form-control',
-                 'readonly' => true,
+                'readonly' => true,
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
         </div>
-
+        <!-- chesis no  -->
+        <div class="col-md-6">
+            <?= $this->Form->control('chesis_no', [
+                'label' => 'Chesis No',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+        <!-- vendor -->
+        <div class="col-md-6">
+            <?= $this->Form->control('vendor', [
+                'label' => 'Vendor',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+        <!-- fuel type -->
+        <div class="col-md-6">
+            <?= $this->Form->control('fuel_type', [
+                'label' => 'Fuel Type',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+        <!-- Policy No -->
+        <div class="col-md-6">
+            <?= $this->Form->control('policy_no', [
+                'label' => 'Policy Number',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+        <!-- Insurance Company Dropdown -->
+        <div class="col-md-6">
+            <?= $this->Form->control('insurance_company_id', [
+                'label' => 'Insurance Company',
+                'options' => $insuranceCompanies,
+                'class' => 'form-select form-control select2',
+                'empty' => 'Select Insurance Company',
+                'required' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
         <!-- Nature -->
         <div class="col-md-6">
             <?= $this->Form->control('nature', [
@@ -71,19 +126,7 @@ use Psy\Readline\Hoa\Autocompleter;
                 'placeholder' => 'Auto Calculated'
             ]) ?>
         </div>
-        <!-- Insurance Company Dropdown -->
-        <div class="col-md-6">
-            <?= $this->Form->control('insurance_company_id', [
-                'label' => 'Insurance Company',
-                'options' => $insuranceCompanies,
-                'class' => 'form-select form-control select2',
-                'empty' => 'Select Insurance Company',
-                'required' => true,
-                'templates' => [
-                    'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]
-            ]) ?>
-        </div>
+
 
         <!-- Auto-filled Contact -->
         <div class="col-md-6">
@@ -196,11 +239,11 @@ use Psy\Readline\Hoa\Autocompleter;
                 'label' => 'Next Insurance Due Date',
                 'type' => 'text',
                 'class' => 'form-control',
-                 'value' => $insurance->next_due ?? '',
-                
+                'value' => $insurance->next_due ?? '',
+
                 'readonly' => true
             ]) ?>
-          
+
         </div>
 
 
@@ -373,75 +416,56 @@ use Psy\Readline\Hoa\Autocompleter;
             allowClear: true
         });
     });
-    // ---- Date Validation + Auto Status + Next Due ----
+
+    function toValidDate(dateStr) {
+        const [day, month, year] = dateStr.split("-");
+
+        let fullYear = parseInt(year);
+        if (fullYear < 100) {
+            fullYear += 2000;
+        }
+
+        return new Date(fullYear, parseInt(month) - 1, parseInt(day));
+    }
+
     function updateDates() {
+
         const startVal = $('input[name="start_date"]').val();
         const expiryVal = $('#expiry-date').val();
         const nextDue = $('#next-due');
         const status = $('#status');
-
         if (!startVal || !expiryVal) return;
-
-        let startDate = new Date(startVal);
-        let expiryDate = new Date(expiryVal);
+        const startDate = toValidDate(startVal);
+        const expiryDate = toValidDate(expiryVal);
         let today = new Date();
         today.setHours(0, 0, 0, 0);
         if (expiryDate < startDate) {
-            alert("Expiry Date must be greater than or equal to Start Date!");
+            if ($('#expiry-date').data('datepicker')) {
+                $('#expiry-date').datepicker('setDate', null);
+            }
+            if ($('#expiry-date')[0]._flatpickr) {
+                $('#expiry-date')[0]._flatpickr.clear();
+            }
             $('#expiry-date').val('');
             nextDue.val('');
-            status.val('');
+            status.val('').trigger('change');
+            alert("Expiry Date must be greater than or equal to Start Date!");
             return;
         }
-
         let nextDay = new Date(expiryDate);
         nextDay.setDate(nextDay.getDate() + 1);
 
-        let dd = String(nextDay.getDate()).padStart(2, '0');
-        let mm = String(nextDay.getMonth() + 1).padStart(2, '0');
-        let yyyy = nextDay.getFullYear();
+        const dd = String(nextDay.getDate()).padStart(2, "0");
+        const mm = String(nextDay.getMonth() + 1).padStart(2, "0");
+        const yyyy = nextDay.getFullYear();
+
         nextDue.val(`${dd}-${mm}-${yyyy}`);
-        status.val(expiryDate >= today ? 'Active' : 'Expired');
+        status.val(expiryDate >= today ? "Active" : "Expired");
     }
 
+
     $('#expiry-date, input[name="start_date"]').on('change', updateDates);
-    $('#expiry-date').on('change', function() {
-        const expiryDate = $(this).val();
-        if (!expiryDate) return;
 
-        // Expect format dd-mm-yy or dd-mm-yyyy
-        const parts = expiryDate.split('-');
-        if (parts.length !== 3) return;
-
-        let day = parseInt(parts[0], 10);
-        let month = parseInt(parts[1], 10) - 1; // JS months are 0-based
-        let year = parseInt(parts[2], 10);
-
-        // ✅ Fix 2-digit year issue
-        if (year < 100) {
-            year += 2000;
-        }
-
-        const expiryFullDate = new Date(year, month, day);
-
-        // ---- Next Day for next_due ----
-        const nextDay = new Date(expiryFullDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-
-        const nextDue = `${String(nextDay.getDate()).padStart(2, '0')}-${String(nextDay.getMonth() + 1).padStart(2, '0')}-${String(nextDay.getFullYear()).slice(-2)}`;
-        $('#next-due').val(nextDue);
-
-        // ---- Compare for status ----
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // normalize time
-        expiryFullDate.setHours(0, 0, 0, 0);
-
-        if (expiryFullDate >= today) {
-            $('#status').val('Active'); // future or today
-        } else {
-            $('#status').val('Expired'); // past
-        }
-    });
     $('input[name="policy_no"]').on('input', function() {
         let value = $(this).val().toUpperCase();
         value = value.replace(/[^A-Z0-9/-]/g, '');
@@ -464,6 +488,7 @@ use Psy\Readline\Hoa\Autocompleter;
             $(this).removeClass('is-invalid');
         }
     });
+
     function updatePolicyNature() {
         const policyType = $('#nature').val();
         const addonsField = $('#addons'); // ✅ Correct selector
@@ -540,10 +565,12 @@ use Psy\Readline\Hoa\Autocompleter;
 
         reader.readAsArrayBuffer(file);
     });
+
     function resetFileInput(input, previewId) {
         input.value = "";
         $(`#${previewId}`).html('<span class="text-muted">No file chosen</span>');
     }
+
     function showFileLink(file, previewId) {
         const fileURL = URL.createObjectURL(file);
         $(`#${previewId}`).html(`
@@ -579,7 +606,7 @@ use Psy\Readline\Hoa\Autocompleter;
         });
     });
 
-      $('#vehicle-code').on('change', function() {
+    $('#vehicle-code').on('change', function() {
         const vehical_code = $(this).val();
         if (!vehical_code) {
             $('textarea[name="policy_no"]').val('');
@@ -593,6 +620,8 @@ use Psy\Readline\Hoa\Autocompleter;
             success: function(response) {
                 if (response.success) {
                     $('input[name="policy_no"]').val(response.data.insurance_policy_no);
+                    $('input[name="vendor"]').val(response.data.vendor);
+                    $('input[name="fuel_type"]').val(response.data.fuel_type);
                 }
                 //  else {
                 //     $('input[name="insurer_contact"]').val('');

@@ -21,11 +21,20 @@
     ]) ?>
 
     <style>
-         .form-error {
-        color: red;
-        font-size: 0.875rem;
-        margin-top: 0.25rem;
-    }
+        
+        .submenu a {
+            padding-left: 45px !important;
+            font-size: 0.9rem;
+             text-decoration: none;
+            color: black;
+        }
+
+        .form-error {
+            color: red;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
         /* Fixed Sidebar */
         .navbar {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -123,8 +132,26 @@
                         Master</a>
                     <a href="/drivers" class="list-group-item list-group-item-action"><i class="fas fa-id-card"></i> Driver
                         Master</a>
-                    <a href="/insurance" class="list-group-item list-group-item-action"><i class="fas fa-shield-alt"></i>
-                        Insurance</a>
+
+                    <li class="list-group-item p-0">
+                        <a href="#" class="d-flex align-items-center justify-content-between px-3 py-2 list-group-item list-group-item-action"
+                            onclick="toggleSubMenu(event, 'insuranceMenu')">
+                            <span><i class="fas fa-shield-alt me-2"></i> Insurance</span>
+                            <i class="fas fa-chevron-down small"></i>
+                        </a>
+
+                        <div id="insuranceMenu" class="submenu" style="display:none;">
+                            <a href="/insurance" class="list-group-item list-group-item-action">
+                                <i class="fas fa-file-alt me-2"></i> Insurance Master
+                            </a>
+                            <a href="/insurance_companies" class="list-group-item list-group-item-action">
+                                <i class="fas fa-building me-2"></i> Insurance Company Master
+                            </a>
+                        </div>
+                    </li>
+
+
+
                     <a href="/maintenance" class="list-group-item list-group-item-action"><i class="fas fa-tools"></i>
                         Servicing & Maintenance</a>
                     <a href="/fuel" class="list-group-item list-group-item-action"><i class="fas fa-gas-pump"></i> Fuel &
@@ -157,15 +184,22 @@
 
     <script>
         // Mobile sidebar toggle
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarCollapseBtn');
-            toggleBtn.addEventListener('click', function () {
+            toggleBtn.addEventListener('click', function() {
                 sidebar.classList.toggle('active');
             });
         });
     </script>
     <?= $this->fetch('script') ?>
 </body>
+<script>
+    function toggleSubMenu(event, id) {
+        event.preventDefault();
+        const menu = document.getElementById(id);
+        menu.style.display = (menu.style.display === "block") ? "none" : "block";
+    }
+</script>
 
 </html>

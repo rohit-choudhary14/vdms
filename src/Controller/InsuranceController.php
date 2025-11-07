@@ -221,12 +221,9 @@ class InsuranceController extends AppController
         }
 
         $data = [
-            // 'vehicle_code' => $vehicle->vehicle_code,
-            // 'registration_no' => $vehicle->registration_no,
-            // 'manufacturing_year' => $vehicle->manufacturing_year ?? null,
-            // 'engine_cc' => $vehicle->engine_cc ?? null,
-            // 'fuel_type' => $vehicle->fuel_type ?? null,
-            // 'purchase_value' => $vehicle->purchase_value ?? null,
+            'insurance_expiry_date' => $vehicle->insurance_expiry_date ?? null,
+            'fuel_type' => $vehicle->fuel_type ?? null,
+            'vendor' => $vehicle->vendor ?? null,
             'insurance_policy_no' => $vehicle->insurance_policy_no ?? 0
         ];
 
