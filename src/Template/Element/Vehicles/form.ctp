@@ -186,8 +186,8 @@
   </div>
   <div class="card-body">
     <?= $this->Form->create($vehicle, ['type' => 'file', 'class' => 'needs-validation', 'novalidate' => true]) ?>
-
-    <!-- VEHICLE CONDITION SELECTION -->
+<!-- 
+VEHICLE CONDITION SELECTION -->
 <div class="form-row mb-4">
   <div class="col-12">
     <div class="card border-primary">
@@ -223,7 +223,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> 
 
     <!-- BASIC VEHICLE INFORMATION -->
     <div class="form-row mb-3">
