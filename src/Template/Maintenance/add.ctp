@@ -1,3 +1,4 @@
+<?= $this->element('loader/index'); ?>
 <div class="mt-5">
     <?= $this->Html->link(
         '<i class="fas fa-arrow-left me-1"></i> Back',
@@ -18,13 +19,127 @@
             'novalidate' => true
         ]) ?>
 
-        <!-- Vehicle -->
-        <div class="col-md-6 mt-3">
+        <!-- Vehicle Registration -->
+        <div class="col-md-6">
             <?= $this->Form->control('vehicle_code', [
+                'id' => 'vehicle-code',
                 'options' => $vehicles,
-                'label' => 'Vehicle',
+                'label' => 'Vehicle Registration Number',
+                'class' => 'form-select form-control select2',
+                'empty' => 'Select Vehicle ',
+                'required' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+         <div class="col-md-6">
+        <?= $this->Form->control('department', [
+            'label' => 'Department / Section',
+            'class' => 'form-select form-control select2',
+            'options' => [
+                'Chief Justice Office' => 'Chief Justice Office',
+                'Registrar Administration' => 'Registrar Administration',
+                'Registrar Vigilance' => 'Registrar Vigilance',
+                'Protocol Section' => 'Protocol Section',
+                'Pool Vehicles' => 'Pool Vehicles'
+            ],
+            'empty' => 'Select Department'
+        ]) ?>
+</div>
+        <!-- Make -->
+        <div class="col-md-4">
+            <?= $this->Form->control('make', [
+                'label' => 'Make',
                 'class' => 'form-control',
-                'required' => true
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Model -->
+        <div class="col-md-4">
+            <?= $this->Form->control('model', [
+                'label' => 'Model',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Year -->
+        <div class="col-md-4">
+            <?= $this->Form->control('year', [
+                'label' => 'Year',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Engine No -->
+        <div class="col-md-6">
+            <?= $this->Form->control('engine_no', [
+                'label' => 'Engine No',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Chesis No -->
+        <div class="col-md-6">
+            <?= $this->Form->control('chesis_no', [
+                'label' => 'Chesis No',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Vendor -->
+        <div class="col-md-6">
+            <?= $this->Form->control('vendor', [
+                'label' => 'Vendor',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Fuel Type -->
+        <div class="col-md-6">
+            <?= $this->Form->control('fuel_type', [
+                'label' => 'Fuel Type',
+                'class' => 'form-control',
+                'readonly' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
+
+        <!-- Mileage at Service -->
+        <div class="col-md-6">
+            <?= $this->Form->control('mileage_at_service', [
+                'label' => 'Mileage at Service (km)',
+                'class' => 'form-control',
+                'placeholder' => 'Enter current mileage',
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
             ]) ?>
         </div>
 
@@ -54,19 +169,19 @@
             ]) ?>
         </div>
 
-
-
-        <!-- Vendor & Parts -->
+        <!-- Performed By -->
         <div class="col-md-6 mt-3">
-            <?= $this->Form->control('vendor', [
-                'label' => 'Service Vendor',
+            <?= $this->Form->control('performed_by', [
+                'label' => 'Performed By (Dealer / Workshop)',
                 'class' => 'form-control',
+                'placeholder' => 'Enter who performed service',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
             ]) ?>
         </div>
 
+        <!-- Parts Replaced -->
         <div class="col-md-6 mt-3">
             <?= $this->Form->control('parts_replaced', [
                 'label' => 'Parts Replaced',
@@ -77,6 +192,7 @@
                 ]
             ]) ?>
         </div>
+
         <!-- Service Details -->
         <div class="col-md-6 mt-3">
             <?= $this->Form->control('service_details', [
@@ -89,24 +205,35 @@
             ]) ?>
         </div>
 
-        <!-- Cost, Work Order, Bill No -->
+        <!-- Cost, Work Order, Invoice No -->
         <div class="col-md-4 mt-3">
-            <?= $this->Form->control('cost', ['label' => 'Cost Incurred', 'class' => 'form-control',
+            <?= $this->Form->control('cost', [
+                'label' => 'Cost Incurred',
+                'class' => 'form-control',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]]) ?>
+                ]
+            ]) ?>
         </div>
+
         <div class="col-md-4 mt-3">
-            <?= $this->Form->control('work_order_no', ['label' => 'Work Order No', 'class' => 'form-control',
+            <?= $this->Form->control('work_order_no', [
+                'label' => 'Work Order No',
+                'class' => 'form-control',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]]) ?>
+                ]
+            ]) ?>
         </div>
+
         <div class="col-md-4 mt-3">
-            <?= $this->Form->control('bill_no', ['label' => 'Bill No', 'class' => 'form-control',
+            <?= $this->Form->control('invoice_no', [
+                'label' => 'Invoice / Receipt #',
+                'class' => 'form-control',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]]) ?>
+                ]
+            ]) ?>
         </div>
 
         <!-- Bill Date, Amount, Next Due -->
@@ -121,12 +248,17 @@
                 ]
             ]) ?>
         </div>
+
         <div class="col-md-4 mt-3">
-            <?= $this->Form->control('bill_amount', ['label' => 'Bill Amount', 'class' => 'form-control',
+            <?= $this->Form->control('bill_amount', [
+                'label' => 'Bill Amount',
+                'class' => 'form-control',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]]) ?>
+                ]
+            ]) ?>
         </div>
+
         <div class="col-md-4 mt-3">
             <?= $this->Form->control('next_service_due', [
                 'type' => 'text',
@@ -139,7 +271,19 @@
             ]) ?>
         </div>
 
-
+        <!-- Notes -->
+        <div class="col-md-12 mt-3">
+            <?= $this->Form->control('notes', [
+                'type' => 'textarea',
+                'label' => 'Notes',
+                'class' => 'form-control',
+                'rows' => 3,
+                'placeholder' => 'Enter remarks or warranty details',
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
 
         <!-- Upload Bill/Invoice -->
         <div class="col-md-6 mb-4 mt-4">
@@ -152,9 +296,9 @@
                     'class' => 'd-none',
                     'label' => false,
                     'id' => 'bill_doc',
-                'templates' => [
-                    'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]
+                    'templates' => [
+                        'error' => '<div class="form-error text-danger">{{content}}</div>'
+                    ]
                 ]) ?>
                 <button type="button" class="btn btn-outline-primary btn-sm browse-btn" data-target="#bill_doc">
                     Browse File
@@ -170,6 +314,7 @@
                 </div>
             </div>
         </div>
+
         <!-- AMC / Warranty -->
         <div class="col-md-6 mt-3 d-flex align-items-center">
             <?= $this->Form->control('amc_warranty', [
@@ -178,7 +323,7 @@
                 'class' => 'form-check-input ms-2',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]   
+                ]
             ]) ?>
         </div>
 
@@ -194,6 +339,7 @@
     </div>
 </div>
 
+
 <!-- Styles -->
 <style>
     .upload-zone {
@@ -208,27 +354,35 @@
     }
 </style>
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
 
         flatpickr(".datepicker", {
             dateFormat: "d-m-Y",
             allowInput: true
         });
+        $('.select2').select2({
+            theme: 'bootstrap-5',
+            width: '100%',
+            placeholder: 'Select an option',
+            allowClear: true
+        });
     });
-
 </script>
 <script>
-    $(function () {
-        $(".browse-btn").on("click", function () {
+    $(function() {
+        $(".browse-btn").on("click", function() {
             $($(this).data("target")).trigger("click");
         });
 
-        $(".upload-zone").on("dragover", function (e) {
-            e.preventDefault(); $(this).addClass("dragover");
-        }).on("dragleave", function (e) {
-            e.preventDefault(); $(this).removeClass("dragover");
-        }).on("drop", function (e) {
-            e.preventDefault(); $(this).removeClass("dragover");
+        $(".upload-zone").on("dragover", function(e) {
+            e.preventDefault();
+            $(this).addClass("dragover");
+        }).on("dragleave", function(e) {
+            e.preventDefault();
+            $(this).removeClass("dragover");
+        }).on("drop", function(e) {
+            e.preventDefault();
+            $(this).removeClass("dragover");
             let input = $(this).find("input[type=file]")[0];
             input.files = e.originalEvent.dataTransfer.files;
             $(input).trigger("change");
@@ -248,6 +402,39 @@
             reader.readAsDataURL(file);
         }
 
-        $("#bill_doc").on("change", function () { previewFile(this, "preview_bill_doc"); });
+        $("#bill_doc").on("change", function() {
+            previewFile(this, "preview_bill_doc");
+        });
+
+        $('#vehicle-code').on('change', function() {
+            showLoader();
+            const vehical_code = $(this).val();
+            if (!vehical_code) {
+                $('textarea[name="policy_no"]').val('');
+                return;
+            }
+
+            $.ajax({
+                url: '<?= $this->Url->build(["controller" => "Insurance", "action" => "getVehicleDetails"]); ?>/' + vehical_code,
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        $('input[name="policy_no"]').val(response.data.insurance_policy_no);
+                        $('input[name="vendor"]').val(response.data.vendor);
+                        $('input[name="fuel_type"]').val(response.data.fuel_type);
+                        hideLoader
+                    }
+                    //  else {
+                    //     $('input[name="insurer_contact"]').val('');
+                    //     $('textarea[name="insurer_address"]').val('');
+                    // }
+                },
+                error: function() {
+                    hideLoader
+                    console.error("Error fetching company details");
+                }
+            });
+        });
     });
 </script>
