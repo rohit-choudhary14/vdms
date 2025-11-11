@@ -186,9 +186,9 @@
   </div>
   <div class="card-body">
     <?= $this->Form->create($vehicle, ['type' => 'file', 'class' => 'needs-validation', 'novalidate' => true]) ?>
-
-    <!-- VEHICLE CONDITION SELECTION -->
-<div class="form-row mb-4">
+<!-- 
+VEHICLE CONDITION SELECTION -->
+ <div class="form-row mb-4">
   <div class="col-12">
     <div class="card border-primary">
       <div class="card-header bg-primary text-white">
@@ -239,7 +239,28 @@
           ]
         ]) ?>
       </div>
-      
+      <div class="form-group col-sm-12 col-md-6">
+        <?= $this->Form->control('chassis_no', [
+          'class' => 'form-control',
+          'label' => 'Chasis No',
+          'type' => 'text',
+          'placeholder' => 'Enter Chasis Number',
+          'required' => true,
+          'templates' => ['error' => '<div class="form-error">{{content}}</div>']
+        ]) ?>
+      </div>
+
+      <div class="form-group col-sm-12 col-md-6">
+        <?= $this->Form->control('engine_no', [
+          'class' => 'form-control',
+          'label' => 'Engine No',
+          'type' => 'text',
+          'placeholder' => 'Enter Engine Number',
+          'required' => true,
+          'templates' => ['error' => '<div class="form-error">{{content}}</div>']
+        ]) ?>
+      </div>
+
       <div class="form-group col-sm-12 col-md-6">
         <?= $this->Form->control('vehicle_type_id', [
           'type' => 'select',
