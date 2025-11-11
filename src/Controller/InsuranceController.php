@@ -224,7 +224,10 @@ class InsuranceController extends AppController
             'insurance_expiry_date' => $vehicle->insurance_expiry_date ?? null,
             'fuel_type' => $vehicle->fuel_type ?? null,
             'vendor' => $vehicle->vendor ?? null,
-            'insurance_policy_no' => $vehicle->insurance_policy_no ?? 0
+            'chassis_no' => $vehicle->chassis_no ?? null,
+            'engine_no' => $vehicle->engine_no ?? null,
+            'insurance_policy_no' => $vehicle->insurance_policy_no ?? 0,
+            'model_year' => $vehicle->model_year ?? null
         ];
 
         return $this->response->withType('application/json')

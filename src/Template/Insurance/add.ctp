@@ -49,8 +49,8 @@ use Psy\Readline\Hoa\Autocompleter;
         </div>
         <!-- chesis no  -->
         <div class="col-md-6">
-            <?= $this->Form->control('chesis_no', [
-                'label' => 'Chesis No',
+            <?= $this->Form->control('chassis_no', [
+                'label' => 'Chasis No',
                 'class' => 'form-control',
                 'readonly' => true,
                 'templates' => [
@@ -580,13 +580,15 @@ use Psy\Readline\Hoa\Autocompleter;
     `);
     }
     $('#insurance-company-id').on('change', function() {
+
         const companyId = $(this).val();
+
         if (!companyId) {
             $('textarea[name="insurer_address"]').val('');
             $('input[name="insurer_contact"]').val('');
             return;
         }
-
+        showLoader();
         $.ajax({
             url: '<?= $this->Url->build(["controller" => "InsuranceCompanies", "action" => "getDetails"]); ?>/' + companyId,
             method: 'GET',
@@ -599,8 +601,10 @@ use Psy\Readline\Hoa\Autocompleter;
                     $('input[name="insurer_contact"]').val('');
                     $('textarea[name="insurer_address"]').val('');
                 }
+                hideLoader();
             },
             error: function() {
+                hideLoader();
                 console.error("Error fetching company details");
             }
         });
@@ -608,11 +612,12 @@ use Psy\Readline\Hoa\Autocompleter;
 
     $('#vehicle-code').on('change', function() {
         const vehical_code = $(this).val();
+
         if (!vehical_code) {
             $('textarea[name="policy_no"]').val('');
             return;
         }
-
+        showLoader();
         $.ajax({
             url: '<?= $this->Url->build(["controller" => "Insurance", "action" => "getVehicleDetails"]); ?>/' + vehical_code,
             method: 'GET',
@@ -622,6 +627,9 @@ use Psy\Readline\Hoa\Autocompleter;
                     $('input[name="policy_no"]').val(response.data.insurance_policy_no);
                     $('input[name="vendor"]').val(response.data.vendor);
                     $('input[name="fuel_type"]').val(response.data.fuel_type);
+                    $('input[name="chassis_no"]').val(response.data.chassis_no);
+                    $('input[name="engine_no"]').val(response.data.engine_no);
+                    hideLoader();
                 }
                 //  else {
                 //     $('input[name="insurer_contact"]').val('');
@@ -629,6 +637,7 @@ use Psy\Readline\Hoa\Autocompleter;
                 // }
             },
             error: function() {
+                hideLoader();
                 console.error("Error fetching company details");
             }
         });

@@ -1,3 +1,5 @@
+
+<?= $this->element('loader/index'); ?>
 <!DOCTYPE html>
 <html>
 

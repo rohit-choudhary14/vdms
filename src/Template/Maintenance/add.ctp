@@ -1,4 +1,3 @@
-<?= $this->element('loader/index'); ?>
 <div class="mt-5">
     <?= $this->Html->link(
         '<i class="fas fa-arrow-left me-1"></i> Back',
@@ -33,20 +32,20 @@
                 ]
             ]) ?>
         </div>
-         <div class="col-md-6">
-        <?= $this->Form->control('department', [
-            'label' => 'Department / Section',
-            'class' => 'form-select form-control select2',
-            'options' => [
-                'Chief Justice Office' => 'Chief Justice Office',
-                'Registrar Administration' => 'Registrar Administration',
-                'Registrar Vigilance' => 'Registrar Vigilance',
-                'Protocol Section' => 'Protocol Section',
-                'Pool Vehicles' => 'Pool Vehicles'
-            ],
-            'empty' => 'Select Department'
-        ]) ?>
-</div>
+        <div class="col-md-6">
+            <?= $this->Form->control('department', [
+                'label' => 'Department / Section',
+                'class' => 'form-select form-control select2',
+                'options' => [
+                    'Chief Justice Office' => 'Chief Justice Office',
+                    'Registrar Administration' => 'Registrar Administration',
+                    'Registrar Vigilance' => 'Registrar Vigilance',
+                    'Protocol Section' => 'Protocol Section',
+                    'Pool Vehicles' => 'Pool Vehicles'
+                ],
+                'empty' => 'Select Department'
+            ]) ?>
+        </div>
         <!-- Make -->
         <div class="col-md-4">
             <?= $this->Form->control('make', [
@@ -97,8 +96,8 @@
 
         <!-- Chesis No -->
         <div class="col-md-6">
-            <?= $this->Form->control('chesis_no', [
-                'label' => 'Chesis No',
+            <?= $this->Form->control('chassis_no', [
+                'label' => 'Chassis No',
                 'class' => 'form-control',
                 'readonly' => true,
                 'templates' => [
@@ -407,13 +406,13 @@
         });
 
         $('#vehicle-code').on('change', function() {
-            showLoader();
+
             const vehical_code = $(this).val();
             if (!vehical_code) {
                 $('textarea[name="policy_no"]').val('');
                 return;
             }
-
+            showLoader();
             $.ajax({
                 url: '<?= $this->Url->build(["controller" => "Insurance", "action" => "getVehicleDetails"]); ?>/' + vehical_code,
                 method: 'GET',
@@ -423,7 +422,10 @@
                         $('input[name="policy_no"]').val(response.data.insurance_policy_no);
                         $('input[name="vendor"]').val(response.data.vendor);
                         $('input[name="fuel_type"]').val(response.data.fuel_type);
-                        hideLoader
+                        $('input[name="chassis_no"]').val(response.data.chassis_no);
+                        $('input[name="engine_no"]').val(response.data.engine_no);
+                        $('input[name="year"]').val(response.data.model_year);
+                        hideLoader()
                     }
                     //  else {
                     //     $('input[name="insurer_contact"]').val('');
@@ -431,7 +433,7 @@
                     // }
                 },
                 error: function() {
-                    hideLoader
+                    hideLoader()
                     console.error("Error fetching company details");
                 }
             });
