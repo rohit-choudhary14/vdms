@@ -56,6 +56,8 @@ class Vehicle extends Entity
         'registration_no' => true,
         'vehicle_type_id' => true,
         'manufacturer_id' => true,
+        'chassis_no' => true,   // or 'chassis_no' if that’s your column
+        'engine_no' => true,
         'model_id' => true,
         'model_year' => true,
         'fuel_type' => true,
