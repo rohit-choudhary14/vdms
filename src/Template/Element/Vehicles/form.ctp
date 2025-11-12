@@ -644,6 +644,7 @@ VEHICLE CONDITION SELECTION -->
 
           <?= $this->Form->control('registration_doc', [
             'type' => 'file',
+            'accept' => 'application/pdf,.pdf',
             'class' => 'd-none',
             'label' => false,
             'id' => 'registrationDoc',
@@ -673,6 +674,7 @@ VEHICLE CONDITION SELECTION -->
 
           <?= $this->Form->control('bill_doc', [
             'type' => 'file',
+            'accept' => 'application/pdf,.pdf',
             'class' => 'd-none',
             'label' => false,
             'id' => 'billDoc',
