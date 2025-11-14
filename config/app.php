@@ -262,9 +262,10 @@ return [
         'default' => [
             'className' => 'Cake\Database\Connection',
             'driver' => 'Cake\Database\Driver\Postgres',
+            // 'driver' => Cake\Database\Driver\Postgres::class,
             'persistent' => false,
-            'host' => 'localhost',
-            // 'port' => 5433,
+            'host' => 'pg92',
+            'port' => 5432,
             /*
              * CakePHP will use the default DB port based on the driver selected
              * MySQL on MAMP uses port 8889, MAMP users will want to uncomment
@@ -312,10 +313,11 @@ return [
          * The test connection is used during the test suite.
          */
         'test' => [
-            'className' => Connection::class,
-            'driver' => Mysql::class,
+    'className' => Connection::class,
+    'driver' => 'Cake\Database\Driver\Postgres',
+
             'persistent' => false,
-            'host' => 'localhost',
+            'host' => 'pg92',
             //'port' => 'non_standard_port_number',
             'username' => 'my_app',
             'password' => 'secret',

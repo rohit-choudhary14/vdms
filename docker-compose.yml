@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  postgres92:
+    image: postgres:9.2
+    container_name: pg92
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_USER: postgres
+      POSTGRES_DB: vdms
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg92_data:/var/lib/postgresql/data
+
+  cakephp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cakephp74
+    restart: unless-stopped
+    ports:
+      - "8765:80"
+    depends_on:
+      - postgres92
+    volumes:
+      - ./:/var/www/html
+
+  pgadmin:
+    image: dpage/pgadmin4:4.2   # <<< IMPORTANT: use 4.2 for PG 9.2
+    container_name: pgadmin4
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+
+volumes:
+  pg92_data:
