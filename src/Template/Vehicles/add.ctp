@@ -418,6 +418,23 @@ VEHICLE CONDITION SELECTION -->
         ]) ?>
       </div>
     </div>
+    <div class="form-row mb-3">
+    <div class="form-group col-sm-12 col-md-6">
+        <?= $this->Form->control('purchase_value', [
+          'class' => 'form-control',
+          'label' => 'PUC No',
+          'type' => 'number',
+          'step' => '0.01',
+          'min' => 0,
+          'placeholder' => 'Enter purchase value',
+          'required' => true,
+          'templates' => [
+            'error' => '<div class="form-error">{{content}}</div>'
+          ]
+        ]) ?>
+      </div>
+    </div>
+        
 
     <div class="form-row mb-3">
       <div class="form-group col-sm-12 col-md-6">
@@ -953,3 +970,73 @@ VEHICLE CONDITION SELECTION -->
     $("#conditionPhotoBackRight").on("change", function () { previewFile(this, "previewBackRight"); });
   });
 </script>
+<script>
+const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const IMG_TYPES = ['image/jpeg','image/jpg'];
+const PDF_TYPES = ['application/pdf'];
+
+document.addEventListener('click', (e) => {
+  if (!e.target.matches('.browse-btn')) return;
+  const target = document.querySelector(e.target.dataset.target);
+  if (target) target.click();
+});
+
+function handleFileInput(inputEl, {isImage=false, previewEl=null}) {
+  inputEl.addEventListener('change', () => {
+    const file = inputEl.files[0];
+    if (!file) return clearPreview(previewEl);
+
+    // size
+    if (file.size > MAX_BYTES) {
+      alert('File too large. Max 5 MB allowed.');
+      inputEl.value = '';
+      return clearPreview(previewEl);
+    }
+
+    // type
+    if (isImage) {
+      if (!IMG_TYPES.includes(file.type)) {
+        alert('Only JPG/JPEG images are allowed.');
+        inputEl.value = '';
+        return clearPreview(previewEl);
+      }
+    } else {
+      if (!PDF_TYPES.includes(file.type)) {
+        alert('Only PDF files are allowed.');
+        inputEl.value = '';
+        return clearPreview(previewEl);
+      }
+    }
+
+    // preview (images only)
+    if (isImage && previewEl) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        previewEl.innerHTML = `<img src="${ev.target.result}" class="img-thumbnail shadow-sm" style="max-height:120px;">`;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+function clearPreview(previewEl) {
+  if (!previewEl) return;
+  previewEl.innerHTML = '';
+}
+
+// register inputs (run after DOM ready)
+document.addEventListener('DOMContentLoaded', () => {
+  // images
+  handleFileInput(document.querySelector('#conditionPhotoFrontLeft'), {isImage:true, previewEl: document.querySelector('#previewFrontLeft')});
+  handleFileInput(document.querySelector('#conditionPhotoFrontRight'), {isImage:true, previewEl: document.querySelector('#previewFrontRight')});
+  handleFileInput(document.querySelector('#conditionPhotoBackLeft'), {isImage:true, previewEl: document.querySelector('#previewBackLeft')});
+  handleFileInput(document.querySelector('#conditionPhotoBackRight'), {isImage:true, previewEl: document.querySelector('#previewBackRight')});
+  handleFileInput(document.querySelector('#photoFront'), {isImage:true, previewEl: document.querySelector('#previewFront')});
+  handleFileInput(document.querySelector('#photoBack'), {isImage:true, previewEl: document.querySelector('#previewBack')});
+
+  // pdfs
+  handleFileInput(document.querySelector('#registrationDoc'), {isImage:false, previewEl: document.querySelector('#previewRegistration')});
+  handleFileInput(document.querySelector('#billDoc'), {isImage:false, previewEl: document.querySelector('#previewBill')});
+});
+</script>
+

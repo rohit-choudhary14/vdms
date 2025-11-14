@@ -281,12 +281,12 @@ class VehiclesTable extends Table
         //     ]);
         // }
 
-        // Registration PDF
+        // ----- Files: PDFs (<=5MB) -----
 $validator->allowEmptyFile('registration_doc');
 $validator
     ->add('registration_doc', 'pdfType', [
         'rule' => function ($value, $context) {
-            if (!$this->isUploaded($value)) return true; // Skip when missing
+            if (!$this->isUploaded($value)) return true;
             $type = $value instanceof UploadedFileInterface
                 ? $value->getClientMediaType()
                 : ($value['type'] ?? '');
@@ -333,14 +333,16 @@ $validator
             $size = $value instanceof UploadedFileInterface
                 ? (int)$value->getSize()
                 : (int)($value['size'] ?? 0);
-            return $size <= 5 * 1024 * 1024;
+            return $size <= 5 * 1024 * 1024; // 5MB
         },
         'message' => 'Bill Document must be 5MB or smaller.',
         'on' => function ($context) {
             return $this->isUploaded($context['data']['bill_doc'] ?? null);
         }
     ]);
-    foreach ([
+
+// ----- Images: JPG/JPEG only, <=5MB -----
+foreach ([
     'photo_front','photo_back',
     'condition_photo_front_left','condition_photo_front_right',
     'condition_photo_back_left','condition_photo_back_right'
@@ -355,7 +357,7 @@ $validator
                 ? $value->getClientMediaType()
                 : ($value['type'] ?? '');
             // Accept common JPEG mime types
-            return in_array($type, ['image/jpeg', 'image/pjpeg'], true);
+            return in_array($type, ['image/jpeg', 'image/pjpeg', 'image/jpg'], true);
         },
         'message' => 'Only JPG/JPEG images are allowed.',
         'on' => function ($context) use ($imgField) {
@@ -367,14 +369,15 @@ $validator
             $size = $value instanceof UploadedFileInterface
                 ? (int)$value->getSize()
                 : (int)($value['size'] ?? 0);
-            return $size <= 2 * 1024 * 1024; // 2MB
+            return $size <= 5 * 1024 * 1024; // 5MB
         },
-        'message' => 'Image must be 2MB or smaller.',
+        'message' => 'Image must be 5MB or smaller.',
         'on' => function ($context) use ($imgField) {
             return $this->isUploaded($context['data'][$imgField] ?? null);
         }
     ]);
 }
+
        return $validator;
     }
 
