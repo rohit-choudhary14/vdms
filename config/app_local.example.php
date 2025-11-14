@@ -44,8 +44,8 @@ return [
              */
             //'port' => 'non_standard_port_number',
             'username' => 'postgres',
-            'password' => '1234',
-            'database' => 'vdms',
+            'password' => '',
+            'database' => 'VDMS',
             'log' => true,
             'url' => env('DATABASE_URL', null),
         ],
