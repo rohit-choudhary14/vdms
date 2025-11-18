@@ -40,8 +40,9 @@ class UsersController extends AppController
     if ($this->request->is('post')) {
         $username = $this->request->getData('username');
         $password = $this->request->getData('password');
-
-        if ($username === 'admin' && $password === 'password') {
+        
+        if (trim($username) == "admin" && trim($password) == "password") {
+            
             $this->request->getSession()->write('Auth.User', ['username' => 'admin']);
             // Redirect to Dashboard controller, index action
             return $this->redirect(['controller' => 'Dashboard', 'action' => 'index']);

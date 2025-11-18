@@ -208,8 +208,6 @@ use Psy\Readline\Hoa\Autocompleter;
                 'class' => 'form-control datepicker',
                 'placeholder' => 'Select start date',
                 'autocomplete' => 'off',
-                'value' => $insurance->start_date ?? '',
-
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
                 ]
@@ -225,7 +223,6 @@ use Psy\Readline\Hoa\Autocompleter;
                 'type' => 'text',
                 'class' => 'form-control datepicker',
                 'placeholder' => 'Select expiry date',
-                'value' => $insurance->expiry_date ?? '',
                 'autocomplete' => 'off',
                 'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
@@ -239,8 +236,10 @@ use Psy\Readline\Hoa\Autocompleter;
                 'label' => 'Next Insurance Due Date',
                 'type' => 'text',
                 'class' => 'form-control',
-                'value' => $insurance->next_due ?? '',
-
+                // 'value' => $insurance->next_due ?? '',
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ],
                 'readonly' => true
             ]) ?>
 
@@ -261,7 +260,7 @@ use Psy\Readline\Hoa\Autocompleter;
         </div>
 
         <div class="col-md-6">
-            <?= $this->Form->control('addons[]', [
+            <?= $this->Form->control('addons', [
                 'type' => 'select',
                 'label' => 'Select Add-ons Coverage',
                 'options' => [
@@ -274,8 +273,11 @@ use Psy\Readline\Hoa\Autocompleter;
                     'ncb_protection' => 'No Claim Bonus Protection',
                     'personal_accident' => 'Personal Accident Cover for Owner-Driver',
                 ],
+                 'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                 ],
                 'multiple' => true,
-                'class' => 'form-control select2-multi',  // extra class for JS selector
+                'class' => 'form-control select2-multi',
                 'labelOptions' => ['style' => 'font-weight:bold;'],
                 'empty' => false,
             ]) ?>

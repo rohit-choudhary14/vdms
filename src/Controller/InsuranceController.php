@@ -7,7 +7,7 @@ use Cake\I18n\FrozenDate;
 
 class InsuranceController extends AppController
 {
-    public function initialize(): void
+    public function initialize()
     {
         parent::initialize();
         $this->loadModel('InsuranceCompanies');
@@ -37,7 +37,7 @@ class InsuranceController extends AppController
 
             // Auto-calc expiry_date if start_date exists but expiry not provided
             if (!empty($data['start_date']) && empty($data['expiry_date'])) {
-                $tenure = !empty($data['policy_tenure']) ? (int)$data['policy_tenure'] : 1;
+                $tenure = !empty($data['policy_tenure']) ? (int) $data['policy_tenure'] : 1;
                 $data['expiry_date'] = date('Y-m-d', strtotime($data['start_date'] . " +{$tenure} year"));
             }
 
@@ -50,9 +50,9 @@ class InsuranceController extends AppController
             if (!empty($data['vehicle_code'])) {
                 $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $data['vehicle_code']])->first();
                 if ($vehicle) {
-                    $data['vehicle_year'] = $vehicle->manufacturing_year ?? $vehicle->manufacturing_year ?? null;
-                    $data['fuel_type'] = $vehicle->fuel_type ?? null;
-                    $data['engine_cc'] = $vehicle->engine_cc ?? null;
+                    $data['vehicle_year'] = isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null;
+                    $data['fuel_type'] = isset($vehicle->fuel_type) ? $vehicle->fuel_type : null;
+                    $data['engine_cc'] = isset($vehicle->engine_cc) ? $vehicle->engine_cc : null;
                 }
             }
 
@@ -60,13 +60,14 @@ class InsuranceController extends AppController
             if (!empty($data['vehicle_code']) && empty($data['idv'])) {
                 $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $data['vehicle_code']])->first();
                 if ($vehicle && !empty($vehicle->purchase_value)) {
-                    $data['idv'] = $this->calculateIdv($vehicle->purchase_value, $vehicle->manufacturing_year ?? null);
+                    $data['idv'] = $this->calculateIdv($vehicle->purchase_value, isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null);
                 }
             }
 
             // Calculate base premium, GST and total premium if possible
             if (!empty($data['idv']) && !empty($data['ncb_percent'])) {
-                $calc = $this->calculatePremiumFromIdv($data['idv'], $data['ncb_percent'], $data['addons'] ?? []);
+                $addons = isset($data['addons']) ? $data['addons'] : [];
+                $calc = $this->calculatePremiumFromIdv($data['idv'], $data['ncb_percent'], $addons);
                 $data['base_premium'] = $calc['base_premium'];
                 $data['gst_amount'] = $calc['gst_amount'];
                 $data['total_premium'] = $calc['total_premium'];
@@ -156,7 +157,8 @@ class InsuranceController extends AppController
 
             // Recalculate premiums if IDV or NCB changed
             if (!empty($data['idv']) && isset($data['ncb_percent'])) {
-                $calc = $this->calculatePremiumFromIdv($data['idv'], $data['ncb_percent'], $data['addons'] ?? []);
+                $addons = isset($data['addons']) ? $data['addons'] : [];
+                $calc = $this->calculatePremiumFromIdv($data['idv'], $data['ncb_percent'], $addons);
                 $data['base_premium'] = $calc['base_premium'];
                 $data['gst_amount'] = $calc['gst_amount'];
                 $data['total_premium'] = $calc['total_premium'];
@@ -221,13 +223,13 @@ class InsuranceController extends AppController
         }
 
         $data = [
-            'insurance_expiry_date' => $vehicle->insurance_expiry_date ?? null,
-            'fuel_type' => $vehicle->fuel_type ?? null,
-            'vendor' => $vehicle->vendor ?? null,
-            'chassis_no' => $vehicle->chassis_no ?? null,
-            'engine_no' => $vehicle->engine_no ?? null,
-            'insurance_policy_no' => $vehicle->insurance_policy_no ?? 0,
-            'model_year' => $vehicle->model_year ?? null
+            'insurance_expiry_date' => isset($vehicle->insurance_expiry_date) ? $vehicle->insurance_expiry_date : null,
+            'fuel_type' => isset($vehicle->fuel_type) ? $vehicle->fuel_type : null,
+            'vendor' => isset($vehicle->vendor) ? $vehicle->vendor : null,
+            'chassis_no' => isset($vehicle->chassis_no) ? $vehicle->chassis_no : null,
+            'engine_no' => isset($vehicle->engine_no) ? $vehicle->engine_no : null,
+            'insurance_policy_no' => isset($vehicle->insurance_policy_no) ? $vehicle->insurance_policy_no : 0,
+            'model_year' => isset($vehicle->model_year) ? $vehicle->model_year : null
         ];
 
         return $this->response->withType('application/json')
@@ -239,7 +241,8 @@ class InsuranceController extends AppController
     {
         $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        $company = $this->InsuranceCompanies->get($companyId);
+        // Use find()->where()->first() to safely handle non-existing ids without throwing
+        $company = $this->InsuranceCompanies->find()->where(['id' => $companyId])->first();
         if (!$company) {
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode(['success' => false]));
@@ -248,8 +251,8 @@ class InsuranceController extends AppController
         $data = [
             'id' => $company->id,
             'name' => $company->name,
-            'contact_number' => $company->contact_number ?? '',
-            'address' => $company->address ?? ''
+            'contact_number' => isset($company->contact_number) ? $company->contact_number : '',
+            'address' => isset($company->address) ? $company->address : ''
         ];
 
         return $this->response->withType('application/json')
@@ -265,16 +268,22 @@ class InsuranceController extends AppController
         if (empty($purchaseValue)) {
             return null;
         }
-        $currentYear = (int)date('Y');
-        $age = $manufacturingYear ? max(0, $currentYear - (int)$manufacturingYear) : 0;
+        $currentYear = (int) date('Y');
+        $age = $manufacturingYear ? max(0, $currentYear - (int) $manufacturingYear) : 0;
 
         // Depreciation table (common example)
-        if ($age < 1) $depr = 0.05;
-        elseif ($age < 2) $depr = 0.15;
-        elseif ($age < 3) $depr = 0.20;
-        elseif ($age < 4) $depr = 0.30;
-        elseif ($age < 5) $depr = 0.40;
-        else $depr = 0.50;
+        if ($age < 1)
+            $depr = 0.05;
+        elseif ($age < 2)
+            $depr = 0.15;
+        elseif ($age < 3)
+            $depr = 0.20;
+        elseif ($age < 4)
+            $depr = 0.30;
+        elseif ($age < 5)
+            $depr = 0.40;
+        else
+            $depr = 0.50;
 
         $idv = $purchaseValue * (1 - $depr);
         return round($idv, 2);
@@ -286,7 +295,7 @@ class InsuranceController extends AppController
      */
     protected function calculatePremiumFromIdv($idv, $ncbPercent = 0, $addons = [])
     {
-        $ncbPercent = (int)$ncbPercent;
+        $ncbPercent = (int) $ncbPercent;
         // base premium = 2.5% of IDV (example). You should adjust logic as required.
         $baseRate = 0.025;
         $basePremium = round($idv * $baseRate, 2);
@@ -309,7 +318,8 @@ class InsuranceController extends AppController
         ];
         if (!empty($addons) && is_array($addons)) {
             foreach ($addons as $a) {
-                if (isset($addonsMap[$a])) $addonTotal += $addonsMap[$a];
+                if (isset($addonsMap[$a]))
+                    $addonTotal += $addonsMap[$a];
             }
         }
 
@@ -329,7 +339,7 @@ class InsuranceController extends AppController
     /**
      * Convert d-m-y or d-m-Y form input to Y-m-d
      */
-    protected function normalizeDatesFromForm(array $data): array
+    protected function normalizeDatesFromForm(array $data)
     {
         $dateFields = ['start_date', 'expiry_date', 'policy_issued_date', 'next_due', 'previous_policy_expiry'];
         foreach ($dateFields as $f) {
@@ -337,11 +347,12 @@ class InsuranceController extends AppController
                 // Accept dd-mm-yy or dd-mm-yyyy (from your flatpickr)
                 $parts = preg_split('/-/', $data[$f]);
                 if (count($parts) === 3) {
-                    $d = (int)$parts[0];
-                    $m = (int)$parts[1];
-                    $y = (int)$parts[2];
+                    $d = (int) $parts[0];
+                    $m = (int) $parts[1];
+                    $y = (int) $parts[2];
                     // two-digit year handling
-                    if ($y < 100) $y += 2000;
+                    if ($y < 100)
+                        $y += 2000;
                     $data[$f] = date('Y-m-d', strtotime("{$y}-{$m}-{$d}"));
                 }
             }

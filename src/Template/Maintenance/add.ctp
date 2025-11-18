@@ -47,7 +47,7 @@
             ]) ?>
         </div>
         <!-- Make -->
-        <div class="col-md-4">
+        <div class="col-md-4 mt-2">
             <?= $this->Form->control('make', [
                 'label' => 'Make',
                 'class' => 'form-control',
@@ -59,7 +59,7 @@
         </div>
 
         <!-- Model -->
-        <div class="col-md-4">
+        <div class="col-md-4 mt-2">
             <?= $this->Form->control('model', [
                 'label' => 'Model',
                 'class' => 'form-control',
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Year -->
-        <div class="col-md-4">
+        <div class="col-md-4 mt-2">
             <?= $this->Form->control('year', [
                 'label' => 'Year',
                 'class' => 'form-control',
@@ -83,7 +83,7 @@
         </div>
 
         <!-- Engine No -->
-        <div class="col-md-6">
+        <div class="col-md-6 mt-2">
             <?= $this->Form->control('engine_no', [
                 'label' => 'Engine No',
                 'class' => 'form-control',
@@ -95,7 +95,7 @@
         </div>
 
         <!-- Chesis No -->
-        <div class="col-md-6">
+        <div class="col-md-6 mt-2">
             <?= $this->Form->control('chassis_no', [
                 'label' => 'Chassis No',
                 'class' => 'form-control',
@@ -107,7 +107,7 @@
         </div>
 
         <!-- Vendor -->
-        <div class="col-md-6">
+        <div class="col-md-6 mt-2">
             <?= $this->Form->control('vendor', [
                 'label' => 'Vendor',
                 'class' => 'form-control',
@@ -119,7 +119,7 @@
         </div>
 
         <!-- Fuel Type -->
-        <div class="col-md-6">
+        <div class="col-md-6 mt-2">
             <?= $this->Form->control('fuel_type', [
                 'label' => 'Fuel Type',
                 'class' => 'form-control',
@@ -131,7 +131,7 @@
         </div>
 
         <!-- Mileage at Service -->
-        <div class="col-md-6">
+        <div class="col-md-6 mt-2">
             <?= $this->Form->control('mileage_at_service', [
                 'label' => 'Mileage at Service (km)',
                 'class' => 'form-control',
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Service Date -->
-        <div class="col-md-6 mt-3">
+        <div class="col-md-6 mt-2">
             <?= $this->Form->control('service_date', [
                 'type' => 'text',
                 'class' => 'form-control datepicker',
