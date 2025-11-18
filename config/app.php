@@ -312,7 +312,7 @@ return [
          */
         'test' => [
             'className' => Connection::class,
-            'driver' => Mysql::class,
+    'driver' => Cake\Database\Driver\Postgres::class,
             'persistent' => false,
             'host' => 'localhost',
             //'port' => 'non_standard_port_number',
