@@ -32,13 +32,13 @@ class InsuranceTable extends Table
             ->notEmptyString('insurance_company_id', 'Please select an insurance company');
 
         $validator
-            ->notEmptyString('policy_no', 'Policy number is required')
-            ->add('policy_no', 'validPolicy', [
-                'rule' => function ($value) {
-                    return preg_match('/^[A-Z0-9\/-]{8,20}$/', strtoupper($value));
-                },
-                'message' => 'Policy number must be 8–20 characters (A-Z, 0-9, - , / only)'
-            ]);
+    ->notEmpty('policy_no', 'Policy number is required')
+    ->add('policy_no', 'validPolicy', [
+        'rule' => function ($value) {
+            return preg_match('/^[A-Z0-9\/-]{8,20}$/', strtoupper($value)) === 1;
+        },
+        'message' => 'Policy number must be 8–20 characters (A-Z, 0-9, - , / only)'
+    ]);
 
         $validator
             ->notEmptyString('nature', 'Please select policy nature')

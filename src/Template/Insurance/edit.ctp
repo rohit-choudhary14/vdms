@@ -15,16 +15,16 @@
 
         <div class="row mb-3">
             <div class="col-md-6">
-               
+
                 <?= $this->Form->control('registration_no', [
                     'class' => 'form-control',
                     'placeholder' => 'Vehicle Registration Number',
                     'required' => true,
-                     'readonly' => true,
-                     'value'=>$vehicles->registration_no,
+                    'readonly' => true,
+                    'value' => $vehicles->registration_no,
                     'templates' => ['error' => '<div class="form-error">{{content}}</div>']
                 ]) ?>
-               
+
             </div>
             <div class="col-md-6">
                 <?= $this->Form->control('policy_no', [
@@ -109,7 +109,7 @@
                     'templates' => ['error' => '<div class="form-error">{{content}}</div>']
                 ]) ?>
             </div>
-             <div class="col-md-6">
+            <div class="col-md-6">
                 <?= $this->Form->control('premium_amount', [
                     'type' => 'number',
                     'step' => '0.01',
@@ -122,8 +122,8 @@
             </div>
         </div>
         <div class="row mb-3">
-            
-           
+
+
             <div class="col-md-6">
                 <?= $this->Form->control('status', [
                     'type' => 'select',
@@ -133,7 +133,7 @@
                     'templates' => ['error' => '<div class="form-error">{{content}}</div>']
                 ]) ?>
             </div>
-             <div class="col-md-6">
+            <div class="col-md-6">
                 <?= $this->Form->control('addons', [
                     'type' => 'textarea',
                     'rows' => 2,
@@ -168,7 +168,7 @@
                     </div>
                 </div>
             </div>
-             <div class="col-md-6 mt-5">
+            <div class="col-md-6 mt-5">
                 <?= $this->Form->control('renewal_alert', ['type' => 'checkbox', 'label' => 'Renewal Alert']) ?>
             </div>
         </div>

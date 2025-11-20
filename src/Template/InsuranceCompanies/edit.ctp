@@ -36,6 +36,17 @@
                 ]
             ]) ?>
         </div>
+        <div class="col-md-6">
+            <?= $this->Form->control('insurer_name', [
+                'label' => 'Insurer Name',
+                'class' => 'form-control',
+                'placeholder' => 'Enter Insurer name',
+                'required' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
 
         <!-- Contact Number -->
         <div class="col-md-6">

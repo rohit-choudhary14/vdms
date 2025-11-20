@@ -60,7 +60,11 @@ class InsuranceCompaniesTable extends Table
         $validator
             ->scalar('contact_number')
             ->maxLength('contact_number', 15)
-            ->allowEmptyString('contact_number');
+            ->allowEmptyString('contact_number'); 
+            $validator
+            ->scalar('insurer_name')
+            ->maxLength('insurer_name', 15)
+            ->notEmptyString('insurer_name');
 
         $validator
             ->email('email')

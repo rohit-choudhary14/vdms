@@ -14,7 +14,8 @@
     </div>
 
     <!-- Controls -->
-    <div class="card-body border-bottom py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+    <div
+      class="card-body border-bottom py-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
       <div class="d-flex align-items-center gap-2">
         <label class="small mb-0">Show
           <select id="rowsPerPage" class="form-select form-select-sm d-inline-block w-auto ms-1">
@@ -58,12 +59,15 @@
               <td><?= h($i->expiry_date) ?></td>
               <td><?= h($i->premium_amount) ?></td>
               <td>
-                <span class="badge rounded-pill px-3 py-1 <?= $i->status == 'Active' ? 'bg-success text-white p-2' : 'bg-secondary text-white p-2' ?>">
+                <span
+                  class="badge rounded-pill px-3 py-1 <?= $i->status == 'Active' ? 'bg-success text-white p-2' : 'bg-secondary text-white p-2' ?>">
                   <?= h($i->status) ?>
                 </span>
               </td>
               <td>
                 <div class="btn-group btn-group-sm" role="group">
+                  <?= $this->Html->link('<i class="fas fa-eye"></i>', ['action' => 'view', $i->insurance_id], ['class' => 'btn btn-light border shadow-sm', 'escape' => false, 'title' => 'View', 'data-bs-toggle' => 'tooltip']) ?>
+
                   <?= $this->Html->link('<i class="fas fa-edit"></i>', ['action' => 'edit', $i->insurance_id], ['class' => 'btn btn-light border text-warning shadow-sm', 'escape' => false, 'title' => 'Edit', 'data-bs-toggle' => 'tooltip']) ?>
                   <?= $this->Form->postLink('<i class="fas fa-trash"></i>', ['action' => 'delete', $i->insurance_id], ['confirm' => 'Are you sure?', 'class' => 'btn btn-light border text-danger shadow-sm', 'escape' => false, 'title' => 'Delete', 'data-bs-toggle' => 'tooltip']) ?>
                 </div>

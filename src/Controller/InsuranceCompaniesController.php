@@ -74,6 +74,7 @@ class InsuranceCompaniesController extends AppController
         ]);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $insuranceCompany = $this->InsuranceCompanies->patchEntity($insuranceCompany, $this->request->getData());
+          
             if ($this->InsuranceCompanies->save($insuranceCompany)) {
                 $this->Flash->success(__('The insurance company has been saved.'));
 
@@ -81,6 +82,8 @@ class InsuranceCompaniesController extends AppController
             }
             $this->Flash->error(__('The insurance company could not be saved. Please, try again.'));
         }
+
+        
         $this->set(compact('insuranceCompany'));
     }
 
@@ -113,7 +116,7 @@ class InsuranceCompaniesController extends AppController
         }
 
         $company = $this->InsuranceCompanies->find()
-            ->select(['contact_number', 'address'])
+            ->select(['contact_number', 'address', 'insurer_name'])
             ->where(['id' => $id])
             ->first();
 
@@ -122,7 +125,9 @@ class InsuranceCompaniesController extends AppController
                 'success' => true,
                 'data' => [
                     'contact_number' => $company->contact_number,
-                    'address' => $company->address
+                    'address' => $company->address,
+                    'insurer_name' => $company->insurer_name,
+
                 ]
             ]));
         }

@@ -2,6 +2,15 @@
 
 use Psy\Readline\Hoa\Autocompleter;
 ?>
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+
+<!-- Buttons CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
+
+
+
+
 <div class="mt-5">
     <?= $this->Html->link(
         '<i class="fas fa-arrow-left me-1"></i> Back',
@@ -9,6 +18,48 @@ use Psy\Readline\Hoa\Autocompleter;
         ['class' => 'btn btn-outline-dark', 'escape' => false]
     ) ?>
 </div>
+<!-- Previous Insurance Details Section -->
+<div class="col-12 mt-4" id="previous-insurance-section" style="display:none;">
+    <h5 class="mb-3">
+        <i class="fas fa-history me-2"></i> Previous Insurance History
+    </h5>
+
+    <table class="table table-bordered table-striped" id="previous-insurance-table">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Policy No</th>
+                <th>Company</th>
+                <th>Start</th>
+                <th>Expiry</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="previous-insurance-body"></tbody>
+    </table>
+</div>
+
+<!-- Modal for Detailed View -->
+<div class="modal fade" id="insuranceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Insurance Details</h5>
+                <button type="button" class="btn-close" data-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body" id="insurance-modal-body">
+                <!-- Filled by JS -->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
 
 <div class="card shadow-sm mb-4 mt-2">
     <div class="card-header bg-dark text-white">
@@ -104,6 +155,10 @@ use Psy\Readline\Hoa\Autocompleter;
                 ]
             ]) ?>
         </div>
+
+
+
+
         <!-- Nature -->
         <div class="col-md-6">
             <?= $this->Form->control('nature', [
@@ -142,6 +197,19 @@ use Psy\Readline\Hoa\Autocompleter;
             ]) ?>
         </div>
 
+        <!-- Insurer -->
+        <div class="col-md-6">
+            <?= $this->Form->control('insurer_name', [
+                'label' => 'Insurer Name',
+                'class' => 'form-control',
+                'readonly' => true,
+                'placeholder' => 'Auto-filled  insurer name',
+                'required' => true,
+                'templates' => [
+                    'error' => '<div class="form-error text-danger">{{content}}</div>'
+                ]
+            ]) ?>
+        </div>
         <!-- Auto-filled Address -->
         <div class="col-md-6">
             <?= $this->Form->control('insurer_address', [
@@ -157,18 +225,6 @@ use Psy\Readline\Hoa\Autocompleter;
             ]) ?>
         </div>
 
-        <!-- Insurer -->
-        <!-- <div class="col-md-6">
-            <?= $this->Form->control('insurer_name', [
-                'label' => 'Insurer Name',
-                'class' => 'form-control',
-                'placeholder' => 'Enter insurer name',
-                'required' => true,
-                'templates' => [
-                    'error' => '<div class="form-error text-danger">{{content}}</div>'
-                ]
-            ]) ?>
-        </div>  -->
 
         <!-- Contact & Address -->
         <!-- <div class="col-md-6">
@@ -273,9 +329,9 @@ use Psy\Readline\Hoa\Autocompleter;
                     'ncb_protection' => 'No Claim Bonus Protection',
                     'personal_accident' => 'Personal Accident Cover for Owner-Driver',
                 ],
-                 'templates' => [
+                'templates' => [
                     'error' => '<div class="form-error text-danger">{{content}}</div>'
-                 ],
+                ],
                 'multiple' => true,
                 'class' => 'form-control select2-multi',
                 'labelOptions' => ['style' => 'font-weight:bold;'],
@@ -362,10 +418,25 @@ use Psy\Readline\Hoa\Autocompleter;
         border-color: #007bff;
         background: #f0f8ff;
     }
+
+.btn-close {
+    width: 1em;
+    height: 1em;
+    background: none;
+    border: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+    opacity: .7;
+}
+.btn-close::after {
+    content: "×";
+    font-weight: bold;
+}
+
 </style>
 
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.select2-multi').select2({
             placeholder: "Select Add-ons Coverage",
             closeOnSelect: false,
@@ -373,18 +444,18 @@ use Psy\Readline\Hoa\Autocompleter;
 
         });
 
-        $(".browse-btn").on("click", function() {
+        $(".browse-btn").on("click", function () {
             let target = $(this).data("target");
             $(target).trigger("click");
         });
 
-        $(".upload-zone").on("dragover", function(e) {
+        $(".upload-zone").on("dragover", function (e) {
             e.preventDefault();
             $(this).addClass("dragover");
-        }).on("dragleave", function(e) {
+        }).on("dragleave", function (e) {
             e.preventDefault();
             $(this).removeClass("dragover");
-        }).on("drop", function(e) {
+        }).on("drop", function (e) {
             e.preventDefault();
             $(this).removeClass("dragover");
 
@@ -400,10 +471,10 @@ use Psy\Readline\Hoa\Autocompleter;
             allowInput: true
         });
     });
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const input = document.querySelector('input[name="insurer_contact"]');
 
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             this.value = this.value.replace(/\D/g, ''); // Keep digits only
 
             if (/^(\d)\1{9}$/.test(this.value)) {
@@ -468,7 +539,7 @@ use Psy\Readline\Hoa\Autocompleter;
 
     $('#expiry-date, input[name="start_date"]').on('change', updateDates);
 
-    $('input[name="policy_no"]').on('input', function() {
+    $('input[name="policy_no"]').on('input', function () {
         let value = $(this).val().toUpperCase();
         value = value.replace(/[^A-Z0-9/-]/g, '');
         $(this).val(value);
@@ -478,7 +549,7 @@ use Psy\Readline\Hoa\Autocompleter;
             $(this).removeClass('is-invalid');
         }
     });
-    $('input[name="premium_amount"]').on('input', function() {
+    $('input[name="premium_amount"]').on('input', function () {
         let value = parseFloat($(this).val());
 
         // Remove invalid characters (Keep only numbers & decimal)
@@ -520,7 +591,7 @@ use Psy\Readline\Hoa\Autocompleter;
     }
     $('#nature').on('change', updatePolicyNature);
     updatePolicyNature();
-    $("#insurance_doc").on("change", function() {
+    $("#insurance_doc").on("change", function () {
         const input = this;
         const file = input.files[0];
         const previewId = "preview_insurance_doc";
@@ -546,7 +617,7 @@ use Psy\Readline\Hoa\Autocompleter;
 
         // Step 3: Validate PDF header (%PDF-)
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
             const bytes = new Uint8Array(e.target.result).subarray(0, 5);
             const header = Array.from(bytes)
                 .map(b => b.toString(16).padStart(2, "0"))
@@ -560,7 +631,7 @@ use Psy\Readline\Hoa\Autocompleter;
             showFileLink(file, previewId);
         };
 
-        reader.onerror = function() {
+        reader.onerror = function () {
             alert("Error reading file. Please try again.");
             resetFileInput(input, previewId);
         };
@@ -581,7 +652,7 @@ use Psy\Readline\Hoa\Autocompleter;
         </a>
     `);
     }
-    $('#insurance-company-id').on('change', function() {
+    $('#insurance-company-id').on('change', function () {
 
         const companyId = $(this).val();
 
@@ -595,26 +666,28 @@ use Psy\Readline\Hoa\Autocompleter;
             url: '<?= $this->Url->build(["controller" => "InsuranceCompanies", "action" => "getDetails"]); ?>/' + companyId,
             method: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
+                    console.log(response.data);
                     $('input[name="insurer_contact"]').val(response.data.contact_number);
                     $('textarea[name="insurer_address"]').val(response.data.address);
+                    $('input[name="insurer_name"]').val(response.data.insurer_name);
                 } else {
                     $('input[name="insurer_contact"]').val('');
                     $('textarea[name="insurer_address"]').val('');
                 }
                 hideLoader();
             },
-            error: function() {
+            error: function () {
                 hideLoader();
                 console.error("Error fetching company details");
             }
         });
     });
 
-    $('#vehicle-code').on('change', function() {
+    $('#vehicle-code').on('change', function () {
         const vehical_code = $(this).val();
-
+        console.log(vehical_code);
         if (!vehical_code) {
             $('textarea[name="policy_no"]').val('');
             return;
@@ -624,24 +697,87 @@ use Psy\Readline\Hoa\Autocompleter;
             url: '<?= $this->Url->build(["controller" => "Insurance", "action" => "getVehicleDetails"]); ?>/' + vehical_code,
             method: 'GET',
             dataType: 'json',
-            success: function(response) {
+            success: function (response) {
                 if (response.success) {
                     $('input[name="policy_no"]').val(response.data.insurance_policy_no);
                     $('input[name="vendor"]').val(response.data.vendor);
                     $('input[name="fuel_type"]').val(response.data.fuel_type);
                     $('input[name="chassis_no"]').val(response.data.chassis_no);
                     $('input[name="engine_no"]').val(response.data.engine_no);
+                   if (response.previous_insurance && response.previous_insurance.length > 0) {
+
+    $("#previous-insurance-section").show();
+
+    let rows = "";
+
+    response.previous_insurance.forEach(function(item, index) {
+
+        let badge = `<span class="badge ${item.status === 'active' ? 'bg-success' : 'bg-secondary'}">${item.status}</span>`;
+
+        rows += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${item.policy_no}</td>
+                <td>${item.company_name}</td>
+                <td>${item.start_date}</td>
+                <td>${item.expiry_date}</td>
+                <td>${badge}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary view-details" 
+                            data-item='${JSON.stringify(item)}'>
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    $("#previous-insurance-body").html(rows);
+
+} else {
+    $("#previous-insurance-section").hide();
+}
+
                     hideLoader();
                 }
-                //  else {
-                //     $('input[name="insurer_contact"]').val('');
-                //     $('textarea[name="insurer_address"]').val('');
-                // }
+
             },
-            error: function() {
+            error: function () {
                 hideLoader();
                 console.error("Error fetching company details");
             }
         });
     });
+
+// ================= VIEW DETAILS MODAL =================
+
+$(document).on("click", ".view-details", function () {
+
+    let item = $(this).data("item");
+
+    let doc = item.document 
+        ? `<a href="${item.document}" target="_blank" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-file-pdf"></i> View Document
+           </a>`
+        : `<span class="text-muted">No document</span>`;
+
+    let html = `
+        <div class="row g-3">
+
+            <div class="col-md-4"><b>Policy Number:</b><br>${item.policy_no}</div>
+            <div class="col-md-4"><b>Company:</b><br>${item.company_name}</div>
+            <div class="col-md-4"><b>Premium:</b><br>₹ ${item.premium_amount}</div>
+
+            <div class="col-md-4"><b>Start Date:</b><br>${item.start_date}</div>
+            <div class="col-md-4"><b>Expiry Date:</b><br>${item.expiry_date}</div>
+            <div class="col-md-4"><b>Status:</b><br>${item.status}</div>
+
+            <div class="col-md-12"><b>Document:</b><br>${doc}</div>
+
+        </div>
+    `;
+
+    $("#insurance-modal-body").html(html);
+    $("#insuranceModal").modal("show");
+});
 </script>

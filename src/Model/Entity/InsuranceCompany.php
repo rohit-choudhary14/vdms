@@ -33,6 +33,7 @@ class InsuranceCompany extends Entity
         'email' => true,
         'address' => true,
         'website' => true,
+        'insurer_name' => true,
         'status' => true,
         'created' => true,
         'modified' => true,

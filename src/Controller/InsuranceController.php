@@ -2,6 +2,7 @@
 // src/Controller/InsuranceController.php
 namespace App\Controller;
 
+use Cake\Http\Exception\NotFoundException;
 use Cake\ORM\TableRegistry;
 use Cake\I18n\FrozenDate;
 
@@ -24,31 +25,57 @@ class InsuranceController extends AppController
         $insurance = $this->paginate($this->Insurance);
         $this->set(compact('insurance'));
     }
-
     public function add()
     {
         $insurance = $this->Insurance->newEntity();
 
-        if ($this->request->is('post')) {
-            $data = $this->request->getData();
+        /*
+        |--------------------------------------------------------------------------
+        | ALWAYS LOAD DROPDOWN DATA FIRST
+        |--------------------------------------------------------------------------
+        */
+        $vehicles = $this->Vehicles->find('list', [
+            'keyField' => 'vehicle_code',
+            'valueField' => 'registration_no'
+        ])->toArray();
+        $vehicles = array_map('strtoupper', $vehicles);
 
-            // Normalize dates from d-m-y or d-m-Y to Y-m-d for DB
+        $insuranceCompanies = $this->InsuranceCompanies->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'name'
+        ])->where(['status' => 'Active'])->toArray();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FORM SUBMISSION LOGIC
+        |--------------------------------------------------------------------------
+        */
+        if ($this->request->is('post')) {
+
+            $data = $this->request->getData();
+            //    print_r($data); 
+            //    die();// For debugging
+            // Normalize dates
             $data = $this->normalizeDatesFromForm($data);
 
-            // Auto-calc expiry_date if start_date exists but expiry not provided
+            // Auto-calc expiry
             if (!empty($data['start_date']) && empty($data['expiry_date'])) {
                 $tenure = !empty($data['policy_tenure']) ? (int) $data['policy_tenure'] : 1;
                 $data['expiry_date'] = date('Y-m-d', strtotime($data['start_date'] . " +{$tenure} year"));
             }
 
-            // Auto policy_issued_date
+            // Auto-issued date
             if (empty($data['policy_issued_date']) && !empty($data['start_date'])) {
                 $data['policy_issued_date'] = $data['start_date'];
             }
 
-            // Auto fill vehicle details if vehicle_code provided
+            // Auto-fill vehicle details
             if (!empty($data['vehicle_code'])) {
-                $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $data['vehicle_code']])->first();
+                $vehicle = $this->Vehicles->find()
+                    ->where(['vehicle_code' => $data['vehicle_code']])
+                    ->first();
+
                 if ($vehicle) {
                     $data['vehicle_year'] = isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null;
                     $data['fuel_type'] = isset($vehicle->fuel_type) ? $vehicle->fuel_type : null;
@@ -56,15 +83,21 @@ class InsuranceController extends AppController
                 }
             }
 
-            // Calculate IDV if purchase_value present
+            // Auto IDV
             if (!empty($data['vehicle_code']) && empty($data['idv'])) {
-                $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $data['vehicle_code']])->first();
+                $vehicle = $this->Vehicles->find()
+                    ->where(['vehicle_code' => $data['vehicle_code']])
+                    ->first();
+
                 if ($vehicle && !empty($vehicle->purchase_value)) {
-                    $data['idv'] = $this->calculateIdv($vehicle->purchase_value, isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null);
+                    $data['idv'] = $this->calculateIdv(
+                        $vehicle->purchase_value,
+                        isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null
+                    );
                 }
             }
 
-            // Calculate base premium, GST and total premium if possible
+            // Auto premium
             if (!empty($data['idv']) && !empty($data['ncb_percent'])) {
                 $addons = isset($data['addons']) ? $data['addons'] : [];
                 $calc = $this->calculatePremiumFromIdv($data['idv'], $data['ncb_percent'], $addons);
@@ -73,54 +106,228 @@ class InsuranceController extends AppController
                 $data['total_premium'] = $calc['total_premium'];
             }
 
-            // File upload handling (safe)
-            $uploads = ['document'];
-            foreach ($uploads as $field) {
+            // Auto status
+            if (!empty($data['expiry_date'])) {
+                $data['status'] =
+                    strtotime($data['expiry_date']) >= strtotime(date('Y-m-d'))
+                    ? 'Active'
+                    : 'Expired';
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | HANDLE FILE UPLOADS (VALIDATION FIRST)
+            |--------------------------------------------------------------------------
+            */
+            $uploadFields = ['document'];
+            $tempFiles = [];
+
+            foreach ($uploadFields as $field) {
                 $file = $this->request->getData($field);
                 if (!empty($file) && !empty($file['name'])) {
-                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-                    $name = uniqid() . '_' . time() . '.' . $ext;
-                    $targetFolder = WWW_ROOT . 'img' . DS . 'uploads' . DS;
-                    if (!is_dir($targetFolder)) {
-                        mkdir($targetFolder, 0755, true);
-                    }
-                    $target = $targetFolder . $name;
-                    move_uploaded_file($file['tmp_name'], $target);
-                    $data[$field] = 'uploads' . DS . $name;
-                } else {
-                    unset($data[$field]);
+                    $tempFiles[$field] = $file;
+                    unset($data[$field]); // remove from entity
                 }
             }
 
-            // Auto status based on expiry date
-            if (!empty($data['expiry_date'])) {
-                $data['status'] = (strtotime($data['expiry_date']) >= strtotime(date('Y-m-d'))) ? 'Active' : 'Expired';
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDATE ENTITY
+            |--------------------------------------------------------------------------
+            */
+            $insurance = $this->Insurance->patchEntity($insurance, $data);
+
+            if ($insurance->getErrors()) {
+                $this->Flash->error("Please correct the errors in the form.");
+                $this->set(compact('insurance', 'vehicles', 'insuranceCompanies'));
+                return;
             }
 
-            $insurance = $this->Insurance->patchEntity($insurance, $data, ['associated' => []]);
-
+            /*
+            |--------------------------------------------------------------------------
+            | SAVE INSURANCE RECORD
+            |--------------------------------------------------------------------------
+            */
             if ($this->Insurance->save($insurance)) {
+
+                // Save uploaded files
+                foreach ($tempFiles as $field => $file) {
+
+                    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                    $name = uniqid() . '_' . time() . '.' . $ext;
+
+                    $targetFolder = WWW_ROOT . 'img' . DS . 'uploads' . DS;
+
+                    if (!is_dir($targetFolder)) {
+                        mkdir($targetFolder, 0755, true);
+                    }
+
+                    $target = $targetFolder . $name;
+                    move_uploaded_file($file['tmp_name'], $target);
+
+                    $insurance->set($field, 'uploads/' . $name);
+                }
+
+                $this->Insurance->save($insurance);
+
                 $this->Flash->success('Insurance added successfully.');
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error('Unable to add insurance. Please correct form errors.');
+
+            $this->Flash->error('Unable to save insurance. Try again.');
         }
 
-        // Vehicle dropdown
-        $vehicles = $this->Vehicles->find('list', [
-            'keyField' => 'vehicle_code',
-            'valueField' => 'registration_no'
-        ])->toArray();
-        $vehicles = array_map('strtoupper', $vehicles);
-
-        // Insurance company dropdown (active)
-        $insuranceCompanies = $this->InsuranceCompanies->find('list', [
-            'keyField' => 'id',
-            'valueField' => 'name'
-        ])->where(['status' => 'Active'])->toArray();
-
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD VIEW VARIABLES
+        |--------------------------------------------------------------------------
+        */
         $this->set(compact('insurance', 'vehicles', 'insuranceCompanies'));
     }
+
+    // public function add()
+    // {
+    //     $insurance = $this->Insurance->newEntity();
+
+    //     if ($this->request->is('post')) {
+
+    //         $data = $this->request->getData();
+
+    //         // Normalize dates (d-m-Y → Y-m-d)
+    //         $data = $this->normalizeDatesFromForm($data);
+
+    //         // Auto-calc expiry if tenure selected
+    //         if (!empty($data['start_date']) && empty($data['expiry_date'])) {
+    //             $tenure = !empty($data['policy_tenure']) ? (int) $data['policy_tenure'] : 1;
+    //             $data['expiry_date'] = date('Y-m-d', strtotime($data['start_date'] . " +{$tenure} year"));
+    //         }
+
+    //         // Auto policy issued date
+    //         if (empty($data['policy_issued_date']) && !empty($data['start_date'])) {
+    //             $data['policy_issued_date'] = $data['start_date'];
+    //         }
+
+    //         // Auto-fill vehicle details
+    //         if (!empty($data['vehicle_code'])) {
+    //             $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $data['vehicle_code']])->first();
+    //             if ($vehicle) {
+    //                 $data['vehicle_year'] = isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null;
+    //                 $data['fuel_type'] = isset($vehicle->fuel_type) ? $vehicle->fuel_type : null;
+    //                 $data['engine_cc'] = isset($vehicle->engine_cc) ? $vehicle->engine_cc : null;
+    //             }
+    //         }
+
+    //         // Auto IDV
+    //         if (!empty($data['vehicle_code']) && empty($data['idv'])) {
+    //             $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $data['vehicle_code']])->first();
+    //             if ($vehicle && !empty($vehicle->purchase_value)) {
+    //                 $data['idv'] = $this->calculateIdv(
+    //                     $vehicle->purchase_value,
+    //                     isset($vehicle->manufacturing_year) ? $vehicle->manufacturing_year : null
+    //                 );
+    //             }
+    //         }
+
+    //         // Auto Premium
+    //         if (!empty($data['idv']) && !empty($data['ncb_percent'])) {
+    //             $addons = isset($data['addons']) ? $data['addons'] : [];
+    //             $calc = $this->calculatePremiumFromIdv($data['idv'], $data['ncb_percent'], $addons);
+    //             $data['base_premium'] = $calc['base_premium'];
+    //             $data['gst_amount'] = $calc['gst_amount'];
+    //             $data['total_premium'] = $calc['total_premium'];
+    //         }
+
+    //         // Auto status
+    //         if (!empty($data['expiry_date'])) {
+    //             $data['status'] =
+    //                 strtotime($data['expiry_date']) >= strtotime(date('Y-m-d'))
+    //                 ? 'Active'
+    //                 : 'Expired';
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | FILE UPLOAD — DO NOT SAVE UNTIL VALIDATION PASSES
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         $uploadFields = ['document'];
+    //         $tempFiles = [];
+
+    //         foreach ($uploadFields as $field) {
+    //             $file = $this->request->getData($field);
+    //             if (!empty($file) && !empty($file['name'])) {
+    //                 $tempFiles[$field] = $file; // store temporarily
+    //                 unset($data[$field]);       // remove from entity data
+    //             }
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | VALIDATE ENTITY FIRST
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         $insurance = $this->Insurance->patchEntity($insurance, $data);
+
+    //         if ($insurance->getErrors()) {
+    //             $this->Flash->error("Please correct the errors in the form.");
+    //             $this->set(compact('insurance'));
+    //             return;
+    //         }
+
+    //         /*
+    //         |--------------------------------------------------------------------------
+    //         | SAVE MAIN RECORD FIRST
+    //         |--------------------------------------------------------------------------
+    //         */
+    //         if ($this->Insurance->save($insurance)) {
+
+    //             /*
+    //             |--------------------------------------------------------------------------
+    //             | NOW UPLOAD FILE (SAFE)
+    //             |--------------------------------------------------------------------------
+    //             */
+    //             foreach ($tempFiles as $field => $file) {
+    //                 $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    //                 $name = uniqid() . '_' . time() . '.' . $ext;
+
+    //                 $targetFolder = WWW_ROOT . 'img' . DS . 'uploads' . DS;
+    //                 if (!is_dir($targetFolder)) {
+    //                     mkdir($targetFolder, 0755, true);
+    //                 }
+
+    //                 $target = $targetFolder . $name;
+    //                 move_uploaded_file($file['tmp_name'], $target);
+
+    //                 // Save file path to DB
+    //                 $insurance->set($field, 'uploads/' . $name);
+    //             }
+
+    //             // Update record with file path
+    //             $this->Insurance->save($insurance);
+
+    //             $this->Flash->success('Insurance added successfully.');
+    //             return $this->redirect(['action' => 'index']);
+    //         }
+
+    //         $this->Flash->error('Unable to save insurance. Try again.');
+    //     }
+
+    //     // Vehicle dropdown list
+    //     $vehicles = $this->Vehicles->find('list', [
+    //         'keyField' => 'vehicle_code',
+    //         'valueField' => 'registration_no'
+    //     ])->toArray();
+    //     $vehicles = array_map('strtoupper', $vehicles);
+
+    //     // Active insurance company list
+    //     $insuranceCompanies = $this->InsuranceCompanies->find('list', [
+    //         'keyField' => 'id',
+    //         'valueField' => 'name'
+    //     ])->where(['status' => 'Active'])->toArray();
+
+    //     $this->set(compact('insurance', 'vehicles', 'insuranceCompanies'));
+    // }
+
 
     public function edit($id = null)
     {
@@ -211,17 +418,126 @@ class InsuranceController extends AppController
         return $this->redirect(['action' => 'index']);
     }
 
-    // JSON endpoint: returns vehicle details for a vehicle_code
+    public function view($insurance_id = null)
+    {
+        if (empty($insurance_id)) {
+            throw new NotFoundException(__('Invalid insurance id'));
+        }
+
+        // Load insurance by primary key (insurance_id)
+        $insurance = $this->Insurance->find()
+            ->where(['insurance_id' => $insurance_id])
+            ->firstOrFail();
+
+        // Load vehicle details
+        $vehicle = null;
+        if ($this->getTableLocator()->exists('Vehicles')) {
+            $vehicle = $this->Vehicles->find()
+                ->where(['vehicle_code' => $insurance->vehicle_code])
+                ->first();
+        }
+
+        // FIXED — Load previous insurance history of the same vehicle
+        $history = $this->Insurance->find()
+            ->where([
+                'vehicle_code' => $insurance->vehicle_code,
+                'insurance_id !=' => $insurance->insurance_id   // correct condition
+            ])
+            ->order(['expiry_date' => 'DESC'])
+            ->all();
+
+        // Compute days left and renewal state
+        $today = new \DateTimeImmutable('now');
+        $expiry = $insurance->expiry_date ? new \DateTimeImmutable($insurance->expiry_date) : null;
+
+        $daysLeft = null;
+        $isExpired = false;
+
+        if ($expiry) {
+            $interval = $today->diff($expiry);
+            $isExpired = (int) $interval->invert === 1;
+            $daysLeft = (int) $interval->days;
+        }
+
+        // Renewal alert logic
+        $renewalAlertDays = (int) (isset($insurance->renewal_alert) ? $insurance->renewal_alert : 30);
+
+        $renewalStatus = 'safe'; // safe / warning / urgent / expired
+
+        if ($expiry) {
+            if ($isExpired) {
+                $renewalStatus = 'expired';
+            } elseif ($daysLeft <= 7) {
+                $renewalStatus = 'urgent';
+            } elseif ($daysLeft <= $renewalAlertDays) {
+                $renewalStatus = 'warning';
+            }
+        }
+
+        // Pass to view
+        $this->set(compact(
+            'insurance',
+            'vehicle',
+            'history',
+            'daysLeft',
+            'isExpired',
+            'renewalStatus',
+            'renewalAlertDays'
+        ));
+    }
+
+
     public function getVehicleDetails($vehicleCode = null)
     {
         $this->request->allowMethod(['get']);
         $this->autoRender = false;
-        $vehicle = $this->Vehicles->find()->where(['vehicle_code' => $vehicleCode])->first();
+
+        $vehicle = $this->Vehicles->find()
+            ->where(['vehicle_code' => $vehicleCode])
+            ->first();
+
         if (!$vehicle) {
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode(['success' => false]));
         }
 
+        // Get ALL previous insurance records
+        $previousInsurances = $this->Insurance
+            ->find()
+            ->contain(['InsuranceCompanies'])
+            ->where(['vehicle_code' => $vehicleCode])
+            ->order(['insurance_id' => 'DESC'])
+            ->all()
+            ->toArray();
+
+        $previousData = [];
+
+        if (!empty($previousInsurances)) {
+
+            foreach ($previousInsurances as $ins) {
+
+                $company = isset($ins->insurance_company) ? $ins->insurance_company : null;
+
+                $previousData[] = [
+                    'policy_no' => isset($ins->policy_no) ? $ins->policy_no : "",
+                    'company_name' => isset($company->name) ? $company->name : "",
+                    'company_details' => $company ? $company : null,
+                    'start_date' => isset($ins->start_date)
+                        ? $ins->start_date->format('d-m-Y')
+                        : "",
+                    'expiry_date' => isset($ins->expiry_date)
+                        ? $ins->expiry_date->format('d-m-Y')
+                        : "",
+                    'premium_amount' => isset($ins->premium_amount) ? $ins->premium_amount : "",
+                    'status' => isset($ins->status) ? $ins->status : "",
+                    'document' => !empty($ins->document)
+                        ? '/img/' . $ins->document
+                        : null
+                ];
+            }
+        }
+
+        // Vehicle basic data
         $data = [
             'insurance_expiry_date' => isset($vehicle->insurance_expiry_date) ? $vehicle->insurance_expiry_date : null,
             'fuel_type' => isset($vehicle->fuel_type) ? $vehicle->fuel_type : null,
@@ -233,8 +549,14 @@ class InsuranceController extends AppController
         ];
 
         return $this->response->withType('application/json')
-            ->withStringBody(json_encode(['success' => true, 'data' => $data]));
+            ->withStringBody(json_encode([
+                'success' => true,
+                'data' => $data,
+                'previous_insurance' => $previousData
+            ]));
     }
+
+
 
     // JSON endpoint: returns insurance company contact & address
     public function getCompanyDetails($companyId = null)
